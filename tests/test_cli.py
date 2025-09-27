@@ -5,6 +5,35 @@ from commizard import cli
 
 
 @pytest.mark.parametrize(
+    "argv,expected_print,expect_exit",
+    [
+        (["prog"], "", False),
+        (["prog", "-v"], f"CommiZard {cli.version}\n", True),
+        (["prog", "--version"], f"CommiZard {cli.version}\n", True),
+        (["prog", "--version", "ignored"], f"CommiZard {cli.version}\n", True),
+        (["prog", "-h"], cli.help_msg.strip() + "\n", True),
+        (["prog", "--help"], cli.help_msg.strip() + "\n", True),
+        (["prog", "not", "recognized"], "", False),
+    ],
+)
+@patch("commizard.cli.sys.exit")
+def test_handle_args(mock_exit, argv, expected_print, expect_exit, capsys,
+                     monkeypatch):
+    monkeypatch.setattr(cli.sys, "argv", argv)
+
+    cli.handle_args()
+
+    captured = capsys.readouterr()
+    assert captured.out == expected_print
+    assert captured.err == ""
+
+    if expect_exit:
+        mock_exit.assert_called_once_with(0)
+    else:
+        mock_exit.assert_not_called()
+
+
+@pytest.mark.parametrize(
     "git_installed, local_ai_avail, inside_work_tree, user_inputs, num_parse",
     [
         (False, True, True, [""], 0),
@@ -28,20 +57,21 @@ from commizard import cli
 @patch("commizard.cli.start.is_inside_working_tree")
 @patch("commizard.cli.start.print_welcome")
 @patch("commizard.cli.commands.parser")
-@patch("builtins.input")
+@patch("commizard.cli.input")
 @patch("commizard.cli.print_error")
 @patch("commizard.cli.print_warning")
-@patch("builtins.print")
-def test_main(mock_print, mock_warning, mock_error, mock_input, mock_parser,
-              mock_welcome, mock_is_inside_work_tree, mock_local_ai,
-              mock_check_git_installed, git_installed, local_ai_avail,
-              inside_work_tree, user_inputs, num_parse):
+@patch("commizard.cli.print")
+@patch("commizard.cli.handle_args")
+def test_main(mock_args, mock_print, mock_warning, mock_error, mock_input,
+              mock_parser, mock_welcome, mock_is_inside_work_tree,
+              mock_local_ai, mock_check_git_installed, git_installed,
+              local_ai_avail, inside_work_tree, user_inputs, num_parse):
     mock_check_git_installed.return_value = git_installed
     mock_is_inside_work_tree.return_value = inside_work_tree
     mock_local_ai.return_value = local_ai_avail
     mock_input.side_effect = user_inputs + ["exit"]
     cli.main()
-
+    mock_args.assert_called_once()
     mock_check_git_installed.assert_called_once()
 
     if not git_installed:
