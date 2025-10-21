@@ -8,6 +8,7 @@ GEN_ENDPOINT: str = OLLAMA_DEFAULT_GEN_ENDPOINT
 
 LLM_URL: str = OLLAMA_DEFAULT_URL
 
+
 def gen_request_url() -> str:
     """
     Returns Complete URL for requesting generation
