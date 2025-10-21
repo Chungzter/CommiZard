@@ -198,7 +198,7 @@ def test_load_model(
 
     mock_http_request.assert_called_once_with(
         "POST",
-        "http://localhost:11434/api/generate",
+        "http://127.0.0.1:11434/api/generate",
         json={"model": "patched_model"},
     )
     if expect_error:
@@ -250,7 +250,7 @@ def test_unload_model(
     else:
         mock_http_request.assert_called_once_with(
             "POST",
-            "http://localhost:11434/api/generate",
+            "http://127.0.0.1:11434/api/generate",
             json={"model": initial_model, "keep_alive": 0},
         )
         assert mock_print_error.called == should_call_error
@@ -303,7 +303,7 @@ def test_generate(
 
     mock_http_request.assert_called_once_with(
         "POST",
-        "http://localhost:11434/api/generate",
+        "http://127.0.0.1:11434/api/generate",
         json={"model": "mymodel", "prompt": "Test prompt", "stream": False},
     )
     assert result == expected
