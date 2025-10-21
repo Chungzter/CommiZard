@@ -124,7 +124,7 @@ def load_model(model_name: str) -> dict:
     """
     print("Loading local model...")
     payload = {"model": selected_model}
-    url = config.LLM_URL + "api/generate"
+    url = config.gen_request_url()
     out = http_request("POST", url, json=payload)
     if out.is_error():
         output.print_error(f"Failed to load {model_name}. Is ollama running?")
@@ -140,7 +140,7 @@ def unload_model() -> None:
     if selected_model is None:
         print("No model to unload.")
         return
-    url = config.LLM_URL + "api/generate"
+    url = config.gen_request_url()
     payload = {"model": selected_model, "keep_alive": 0}
     response = http_request("POST", url, json=payload)
     if response.is_error():
@@ -161,7 +161,7 @@ def generate(prompt: str) -> tuple[int, str]:
         response is ok, 1 otherwise. The response is the error message if the
         request fails and the return code is 1.
     """
-    url = config.LLM_URL + "api/generate"
+    url = config.gen_request_url()
     payload = {"model": selected_model, "prompt": prompt, "stream": False}
     r = http_request("POST", url, json=payload)
     if r.is_error():
