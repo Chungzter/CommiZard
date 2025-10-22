@@ -269,6 +269,14 @@ def test_unload_model(
             "Please do let the dev team know if this keeps happening.\n",
         ),
         (
+            499,
+            "Error 499: Client Error - This appears to be a configuration or request issue.\n"
+            "Suggestions:\n"
+            "  • Verify your request parameters and model name\n"
+            "  • Check Ollama documentation: https://github.com/ollama/ollama/blob/main/docs/api.md\n"
+            "  • Review your commizard configuration",
+        ),
+        (
             599,
             "Error 599: Server Error - This appears to be an issue with the Ollama service.\n"
             "Suggestions:\n"
