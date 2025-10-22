@@ -261,6 +261,33 @@ def test_unload_model(
 
 
 @pytest.mark.parametrize(
+    "error_code, expected_result",
+    [
+        (
+            503,
+            "Error 503: Service Unavailable - Ollama service is not responding.\n"
+            "Please do let the dev team know if this keeps happening.\n",
+        ),
+        (
+            599,
+            "Error 599: Server Error - This appears to be an issue with the Ollama service.\n"
+            "Suggestions:\n"
+            "  • Try restarting Ollama: ollama serve\n"
+            "  • Check Ollama logs for more information\n"
+            "  • Wait a moment and try again",
+        ),
+        (
+            999,
+            "Error 999: Unexpected response.\n"
+            "Check the Ollama documentation or server logs for more details.",
+        ),
+    ],
+)
+def test_get_error_message(error_code, expected_result):
+    assert llm.get_error_message(error_code) == expected_result
+
+
+@pytest.mark.parametrize(
     "is_error, return_code, response_dict, err_msg, expected",
     [
         (
