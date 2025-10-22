@@ -276,7 +276,10 @@ def test_unload_model(
             500,
             {"error": "ignored"},
             None,
-            (500, "Unknown status code: 500"),
+            (
+                500,
+                "Error 500: Internal Server Error - Ollama encountered an unexpected error.\nSuggestions:\n  • The model may have run out of memory (RAM/VRAM)\n  • Try restarting Ollama: ollama serve\n  • Check Ollama logs for detailed error information\n  • Consider using a smaller model if resources are limited",
+            ),
         ),
     ],
 )
