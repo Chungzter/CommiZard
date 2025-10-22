@@ -8,6 +8,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Improved HTTP error handling with clearer status messages and suggested fixes (thanks [@bored-arvi](https://github.com/bored-arvi))
+
 ## [0.2.0] - 2025-10-20
 
 ### Added
