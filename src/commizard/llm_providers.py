@@ -241,12 +241,17 @@ def generate(prompt: str) -> tuple[int, str]:
         request fails and the return code is 1.
     """
     url = config.gen_request_url()
+    if selected_model is None:
+        return 1, (
+            "No model selected. You must use the start command to specify"
+            "which model to use before generating.\nExample: start model_name"
+        )
     payload = {"model": selected_model, "prompt": prompt, "stream": False}
     r = http_request("POST", url, json=payload)
     if r.is_error():
         return 1, r.err_message()
     elif r.return_code == 200:
-        return 0, r.response.get("response")
+        return 0, r.response.get("response").strip()
     else:
         error_msg = get_error_message(r.return_code)
         return r.return_code, error_msg
