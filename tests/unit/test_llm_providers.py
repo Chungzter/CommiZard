@@ -263,6 +263,7 @@ def test_unload_model(
             (1, "can't connect to the server"),
         ),
         (False, 200, {"response": "Hello world"}, None, (0, "Hello world")),
+        (False, 200, {"response": "  Hello world\n"}, None, (0, "Hello world")),
         (
             False,
             500,
