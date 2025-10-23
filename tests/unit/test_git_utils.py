@@ -116,7 +116,7 @@ def test_run_git_command(mock_run, args, mock_result, raised_exception):
 @patch("commizard.git_utils.run_git_command")
 def test_is_inside_working_tree(mock_run, mock_val, expected_result):
     mock_run.return_value = mock_val
-    res: bool = git_utils.is_inside_working_tree()
+    res = git_utils.is_inside_working_tree()
     mock_run.assert_called_once_with(["rev-parse", "--is-inside-work-tree"])
     assert res == expected_result
 

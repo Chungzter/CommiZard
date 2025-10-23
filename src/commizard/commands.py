@@ -99,6 +99,9 @@ def print_available_models(opts: list[str]) -> None:
 
 
 def generate_message(opts: list[str]) -> None:
+    """
+    Generate a message based on the current Git repository changes.
+    """
     diff = git_utils.get_clean_diff()
     if diff == "":
         output.print_warning("No changes to the repository.")
@@ -106,6 +109,7 @@ def generate_message(opts: list[str]) -> None:
 
     prompt = llm_providers.generation_prompt + diff
     stat, res = llm_providers.generate(prompt)
+
     if stat != 0:
         output.print_error(res)
         return

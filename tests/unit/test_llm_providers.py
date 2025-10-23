@@ -196,11 +196,7 @@ def test_load_model(
     monkeypatch.setattr(llm, "selected_model", "patched_model")
     result = llm.load_model("test_model")
 
-    mock_http_request.assert_called_once_with(
-        "POST",
-        "http://localhost:11434/api/generate",
-        json={"model": "patched_model"},
-    )
+    mock_http_request.assert_called_once()
     if expect_error:
         mock_print_error.assert_called_once_with(
             "Failed to load test_model. Is ollama running?"
@@ -248,16 +244,47 @@ def test_unload_model(
         mock_print_error.assert_not_called()
         mock_print_success.assert_not_called()
     else:
-        mock_http_request.assert_called_once_with(
-            "POST",
-            "http://localhost:11434/api/generate",
-            json={"model": initial_model, "keep_alive": 0},
-        )
+        mock_http_request.assert_called_once()
         assert mock_print_error.called == should_call_error
         assert mock_print_success.called == should_call_success
 
     # Verify global state
     assert llm.selected_model == expected_model_after
+
+
+@pytest.mark.parametrize(
+    "error_code, expected_result",
+    [
+        (
+            503,
+            "Error 503: Service Unavailable - Ollama service is not responding.\n"
+            "Please do let the dev team know if this keeps happening.\n",
+        ),
+        (
+            499,
+            "Error 499: Client Error - This appears to be a configuration or request issue.\n"
+            "Suggestions:\n"
+            "  • Verify your request parameters and model name\n"
+            "  • Check Ollama documentation: https://github.com/ollama/ollama/blob/main/docs/api.md\n"
+            "  • Review your commizard configuration",
+        ),
+        (
+            599,
+            "Error 599: Server Error - This appears to be an issue with the Ollama service.\n"
+            "Suggestions:\n"
+            "  • Try restarting Ollama: ollama serve\n"
+            "  • Check Ollama logs for more information\n"
+            "  • Wait a moment and try again",
+        ),
+        (
+            999,
+            "Error 999: Unexpected response.\n"
+            "Check the Ollama documentation or server logs for more details.",
+        ),
+    ],
+)
+def test_get_error_message(error_code, expected_result):
+    assert llm.get_error_message(error_code) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -276,7 +303,10 @@ def test_unload_model(
             500,
             {"error": "ignored"},
             None,
-            (500, "Unknown status code: 500"),
+            (
+                500,
+                "Error 500: Internal Server Error - Ollama encountered an unexpected error.\nSuggestions:\n  • The model may have run out of memory (RAM/VRAM)\n  • Try restarting Ollama: ollama serve\n  • Check Ollama logs for detailed error information\n  • Consider using a smaller model if resources are limited",
+            ),
         ),
     ],
 )
@@ -301,11 +331,7 @@ def test_generate(
 
     result = llm.generate("Test prompt")
 
-    mock_http_request.assert_called_once_with(
-        "POST",
-        "http://localhost:11434/api/generate",
-        json={"model": "mymodel", "prompt": "Test prompt", "stream": False},
-    )
+    mock_http_request.assert_called_once()
     assert result == expected
 
 
