@@ -10,8 +10,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Bump maximum supported version of dependencies:
+    - Rich: 14.1.0 to 14.2.0
+    - Pyperclip: 1.9.0 to 1.11.0
 - Improved HTTP error handling with clearer status messages and suggested
   fixes (thanks [@bored-arvi](https://github.com/bored-arvi))
+- Fixed, optimized and resized the project's banner (
+  thanks [@TimBrusten](https://github.com/TimBrusten))
+- Removed possible whitespace from the beginning and end of the generated commit
+  message
+- Fixed vague error message in using `gen`: Now the error message tells the user
+  they haven't started a model
 
 ## [0.2.0] - 2025-10-20
 
