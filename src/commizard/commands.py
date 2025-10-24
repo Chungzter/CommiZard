@@ -30,13 +30,7 @@ def handle_commit_req(opts: list[str]) -> None:
 # TODO: implement
 def print_help(opts: list[str]) -> None:
     """
-    prints a list of all commands and a brief description
-
-    Args:
-        opts: a specific command that the user needs help with
-
-    Returns:
-        None
+    print general or command specific help.
     """
     if opts == []:
         help_msg = (
