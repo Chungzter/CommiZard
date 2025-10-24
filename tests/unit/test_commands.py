@@ -71,11 +71,11 @@ def test_handle_commit_req(
         ),
         (
             ["cp"],
-            "Usage: cp\n\nCopies the last generated message to the clipboard.",
+            "Usage: cp\n\nCopies the last generated message to the clipboard.\n",
         ),
         (
             ["doesn't exist"],
-            "Unknown command: doesn't exist. Use help for a list of available commands.",
+            "Unknown command: doesn't exist. Use help for a list of available commands.\n",
         ),
     ],
 )

@@ -70,7 +70,7 @@ def print_help(opts: list[str]) -> None:
         cmd = opts[0]
         help_msg = command_help.get(
             cmd,
-            f"Unknown command: {cmd}. Use help for a list of available commands.",
+            f"Unknown command: {cmd}. Use help for a list of available commands.\n",
         )
     print(help_msg)
 
