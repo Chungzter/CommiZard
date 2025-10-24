@@ -66,6 +66,9 @@ def print_help(opts: list[str]) -> None:
             "\nTo view help for a command, type help, followed by a space, and the\n"
             "command's name.\n"
         )
+    else:
+        cmd = opts[0]
+        help_msg = command_help[cmd]
     print(help_msg)
 
 
