@@ -37,7 +37,6 @@ def print_help(opts: list[str]) -> None:
             "Usage: start <model>\n\n"
             "Selects the model to generate commit messages with."
         ),
-        "list": ("Usage: list\n\nLists all installed models."),
         "gen": (
             "Usage: gen\n\n"
             "Generates a commit message from the current Git diff."
@@ -48,6 +47,7 @@ def print_help(opts: list[str]) -> None:
         "commit": (
             "Usage: commit\n\nCommits using the last generated message."
         ),
+        "list": ("Usage: list\n\nLists all installed models."),
         "cls": ("Usage: cls | clear\n\nClears the terminal screen."),
         "clear": ("Usage: cls | clear\n\nClears the terminal screen."),
         "exit": ("Usage: exit | quit\n\nExits the program."),
