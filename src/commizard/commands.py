@@ -27,7 +27,6 @@ def handle_commit_req(opts: list[str]) -> None:
         output.print_warning(msg)
 
 
-# TODO: implement
 def print_help(opts: list[str]) -> None:
     """
     print general or command specific help.
