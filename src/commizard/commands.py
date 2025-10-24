@@ -68,7 +68,7 @@ def print_help(opts: list[str]) -> None:
         )
     else:
         cmd = opts[0]
-        help_msg = command_help[cmd]
+        help_msg = command_help.get(cmd, f"Unknown command: {cmd}")
     print(help_msg)
 
 
