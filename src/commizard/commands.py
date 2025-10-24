@@ -34,16 +34,16 @@ def print_help(opts: list[str]) -> None:
     """
     if opts == []:
         help_msg = (
-            "The following commands are available:\n"
-            "  start <model>   Select a model to generate for you.\n"
-            "  list            List all installed Ollama models.\n"
-            "  gen             Generate a new commit message from the current Git diff.\n"
-            "  cp              Copy the last generated message to the clipboard.\n"
-            "  commit          Commit using the last generated message.\n"
-            "  cls, clear      Clear the terminal screen.\n"
-            "  exit, quit      Exit the program.\n"
-            "To view help for a command, type help, followed by a space, and the\n"
-            "command's name."
+            "\nThe following commands are available:\n\n"
+            "  start             Select a model to generate for you.\n"
+            "  list              List all available models.\n"
+            "  gen               Generate a new commit message.\n"
+            "  cp                Copy the last generated message to the clipboard.\n"
+            "  commit            Commit the last generated message.\n"
+            "  cls  | clear      Clear the terminal screen.\n"
+            "  exit | quit       Exit the program.\n"
+            "\nTo view help for a command, type help, followed by a space, and the\n"
+            "command's name.\n"
         )
     print(help_msg)
 
