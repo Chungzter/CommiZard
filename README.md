@@ -95,6 +95,7 @@ use the following commands:
 
 |     Command      |                         Description                          |
 |:----------------:|:------------------------------------------------------------:|
+|      `help`      |       Show all commands or details for a specific one.       |
 | `start <model>`  |        select a particular model to generate for you.        |
 |      `list`      |  List all available Ollama models installed on your system.  |
 |      `gen`       | Generate a new commit message based on the current Git diff. |
