@@ -35,23 +35,23 @@ def print_help(opts: list[str]) -> None:
     command_help = {
         "start": (
             "Usage: start <model>\n\n"
-            "Selects the model to generate commit messages with."
+            "Selects the model to generate commit messages with.\n"
         ),
         "gen": (
             "Usage: gen\n\n"
-            "Generates a commit message from the current Git diff."
+            "Generates a commit message from the current Git diff.\n"
         ),
         "cp": (
-            "Usage: cp\n\nCopies the last generated message to the clipboard."
+            "Usage: cp\n\nCopies the last generated message to the clipboard.\n"
         ),
         "commit": (
-            "Usage: commit\n\nCommits using the last generated message."
+            "Usage: commit\n\nCommits using the last generated message.\n"
         ),
-        "list": ("Usage: list\n\nLists all installed models."),
-        "cls": ("Usage: cls | clear\n\nClears the terminal screen."),
-        "clear": ("Usage: cls | clear\n\nClears the terminal screen."),
-        "exit": ("Usage: exit | quit\n\nExits the program."),
-        "quit": ("Usage: exit | quit\n\nExits the program."),
+        "list": ("Usage: list\n\nLists all installed models.\n"),
+        "cls": ("Usage: cls | clear\n\nClears the terminal screen.\n"),
+        "clear": ("Usage: cls | clear\n\nClears the terminal screen.\n"),
+        "exit": ("Usage: exit | quit\n\nExits the program.\n"),
+        "quit": ("Usage: exit | quit\n\nExits the program.\n"),
     }
     if opts == []:
         help_msg = (
