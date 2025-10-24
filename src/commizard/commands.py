@@ -32,6 +32,27 @@ def print_help(opts: list[str]) -> None:
     """
     print general or command specific help.
     """
+    command_help = {
+        "start": (
+            "Usage: start <model>\n\n"
+            "Selects the model to generate commit messages with."
+        ),
+        "list": ("Usage: list\n\nLists all installed models."),
+        "gen": (
+            "Usage: gen\n\n"
+            "Generates a commit message from the current Git diff."
+        ),
+        "cp": (
+            "Usage: cp\n\nCopies the last generated message to the clipboard."
+        ),
+        "commit": (
+            "Usage: commit\n\nCommits using the last generated message."
+        ),
+        "cls": ("Usage: cls | clear\n\nClears the terminal screen."),
+        "clear": ("Usage: cls | clear\n\nClears the terminal screen."),
+        "exit": ("Usage: exit | quit\n\nExits the program."),
+        "quit": ("Usage: exit | quit\n\nExits the program."),
+    }
     if opts == []:
         help_msg = (
             "\nThe following commands are available:\n\n"
