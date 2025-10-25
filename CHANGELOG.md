@@ -8,6 +8,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Added `help [command]` to display usage information and guide users within the
+  REPL.
+
 ### Changed
 
 - Bump maximum supported version of dependencies:

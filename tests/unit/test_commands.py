@@ -52,6 +52,41 @@ def test_handle_commit_req(
 
 
 @pytest.mark.parametrize(
+    "opt, expected",
+    [
+        (
+            [],
+            (
+                "\nThe following commands are available:\n\n"
+                "  start             Select a model to generate for you.\n"
+                "  list              List all available models.\n"
+                "  gen               Generate a new commit message.\n"
+                "  cp                Copy the last generated message to the clipboard.\n"
+                "  commit            Commit the last generated message.\n"
+                "  cls  | clear      Clear the terminal screen.\n"
+                "  exit | quit       Exit the program.\n"
+                "\nTo view help for a command, type help, followed by a space, and the\n"
+                "command's name.\n"
+            ),
+        ),
+        (
+            ["cp"],
+            "Usage: cp\n\nCopies the last generated message to the clipboard.\n",
+        ),
+        (
+            ["doesn't exist"],
+            "Unknown command: doesn't exist. Use help for a list of available commands.\n",
+        ),
+    ],
+)
+def test_print_help(capsys, opt, expected):
+    commands.print_help(opt)
+    cap = capsys.readouterr()
+    assert cap.out == expected + "\n"
+    assert cap.err == ""
+
+
+@pytest.mark.parametrize(
     "gen_message, opts, expect_warning",
     [
         # No message. warning only

@@ -27,17 +27,51 @@ def handle_commit_req(opts: list[str]) -> None:
         output.print_warning(msg)
 
 
-# TODO: implement
 def print_help(opts: list[str]) -> None:
     """
-    prints a list of all commands and a brief description
-
-    Args:
-        opts: a specific command that the user needs help with
-
-    Returns:
-        None
+    print general or command specific help.
     """
+    command_help = {
+        "start": (
+            "Usage: start <model>\n\n"
+            "Selects the model to generate commit messages with.\n"
+        ),
+        "gen": (
+            "Usage: gen\n\n"
+            "Generates a commit message from the current Git diff.\n"
+        ),
+        "cp": (
+            "Usage: cp\n\nCopies the last generated message to the clipboard.\n"
+        ),
+        "commit": (
+            "Usage: commit\n\nCommits using the last generated message.\n"
+        ),
+        "list": ("Usage: list\n\nLists all installed models.\n"),
+        "cls": ("Usage: cls | clear\n\nClears the terminal screen.\n"),
+        "clear": ("Usage: cls | clear\n\nClears the terminal screen.\n"),
+        "exit": ("Usage: exit | quit\n\nExits the program.\n"),
+        "quit": ("Usage: exit | quit\n\nExits the program.\n"),
+    }
+    if opts == []:
+        help_msg = (
+            "\nThe following commands are available:\n\n"
+            "  start             Select a model to generate for you.\n"
+            "  list              List all available models.\n"
+            "  gen               Generate a new commit message.\n"
+            "  cp                Copy the last generated message to the clipboard.\n"
+            "  commit            Commit the last generated message.\n"
+            "  cls  | clear      Clear the terminal screen.\n"
+            "  exit | quit       Exit the program.\n"
+            "\nTo view help for a command, type help, followed by a space, and the\n"
+            "command's name.\n"
+        )
+    else:
+        cmd = opts[0]
+        help_msg = command_help.get(
+            cmd,
+            f"Unknown command: {cmd}. Use help for a list of available commands.\n",
+        )
+    print(help_msg)
 
 
 def copy_command(opts: list[str]) -> None:
