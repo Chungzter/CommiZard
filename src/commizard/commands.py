@@ -199,6 +199,13 @@ def parser(user_input: str) -> int:
         err_str = f"Command '{commands[0]}' not found.\n"
         match = get_close_matches(commands[0], supported_commands.keys(), n=2)
         if match != []:
-            err_str += "\nThe most similar command " + ("is" if len(match) == 1 else "are") + f" {m for m in match}.\n"
+
+            is_are = ("is" if len(match) == 1 else "are") + ":\n"
+            err_str += "\nThe most similar command " + is_are
+
+            for i in match:
+                err_str += f"\t{i}\n"
+        output.print_error(err_str)
+
 
         return 1
