@@ -188,7 +188,7 @@ def parser(user_input: str) -> int:
         a status code: 0 for success, 1 for unrecognized command
     """
     commands = user_input.split()
-    if commands[0] in list(supported_commands.keys()):
+    if commands[0] in supported_commands:
         # call the function from the dictionary with the rest of the commands
         # passed as arguments to it
         cmd_func = supported_commands[commands[0]]
