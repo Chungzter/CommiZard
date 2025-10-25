@@ -412,8 +412,11 @@ def test_parser_gen(mock_func, user_input, expected_args):
         "blargh --x",
     ],
 )
-def test_parser_unrecognized(user_input):
+def test_parser_unrecognized(capsys, user_input):
     result = commands.parser(user_input)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err != ""
     assert result == 1
 
 
