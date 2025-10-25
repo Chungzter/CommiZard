@@ -200,7 +200,7 @@ def parser(user_input: str) -> int:
             f"Command '{commands[0]}' not found. Use 'help' for more info\n"
         )
         match = get_close_matches(
-            commands[0], list(supported_commands.keys()) + ["exit", "quit"], n=2
+            commands[0], [*supported_commands.keys(), "exit", "quit"], n=2
         )
         if match != []:
             is_are = (" is" if len(match) == 1 else "s are") + ":\n"
