@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import platform
 import sys
+from difflib import get_close_matches
 from typing import TYPE_CHECKING
 
 import pyperclip
@@ -188,11 +189,25 @@ def parser(user_input: str) -> int:
         a status code: 0 for success, 1 for unrecognized command
     """
     commands = user_input.split()
-    if commands[0] in list(supported_commands.keys()):
+    if commands[0] in supported_commands:
         # call the function from the dictionary with the rest of the commands
         # passed as arguments to it
         cmd_func = supported_commands[commands[0]]
         cmd_func(commands[1:])
         return 0
     else:
+        err_str = (
+            f"Command '{commands[0]}' not found. Use 'help' for more info\n"
+        )
+        match = get_close_matches(
+            commands[0], [*supported_commands.keys(), "exit", "quit"], n=2
+        )
+        if match != []:
+            is_are = (" is" if len(match) == 1 else "s are") + ":\n"
+            err_str += "\nThe most similar command" + is_are
+
+            for i in match:
+                err_str += f"\t{i}\n"
+        output.print_error(err_str)
+
         return 1
