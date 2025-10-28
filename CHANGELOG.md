@@ -12,6 +12,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Added `help [command]` to display usage information and guide users within the
   REPL.
+- Added diagnostic error messages for incorrect commands: Now the program checks
+  if the command is available, and errors if the user input is incorrect.
+- Added suggestions for incorrect user input: for example if the user writes
+  gem, We'll suggest gen as the most similar command, with up to 2
+  recommendations.
 
 ### Changed
 
