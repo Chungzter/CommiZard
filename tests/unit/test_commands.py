@@ -418,6 +418,20 @@ def test_parser_unrecognized(capsys, user_input):
     assert captured.out == ""
     assert captured.err != ""
     assert result == 1
+@pytest.mark.parametrize(
+    "user_input, expected_err",
+    [
+        ("commir", "Command 'commir' not found. Use 'help' for more info\n\nThe most similar command is:\n\tcommit\n\n"),
+        ("lits", "Command 'lits' not found. Use 'help' for more info\n\nThe most similar command is:\n\tlist\n\n"),
+        ("gener", "Command 'gener' not found. Use 'help' for more info\n\nThe most similar commands are:\n\tgen\ngenerate\n\n"),
+    ]
+)
+@patch("commizard.commands.output.print_error")
+def test_parser_typo(mock_perr, user_input, expected_err,capsys):
+    result = commands.parser(user_input)
+    captured = capsys.readouterr()
+    assert  mock_perr.assert_called_once_with(expected_err)
+    assert result == 1
 
 
 @pytest.mark.parametrize("cmd", ["clear", "cls"])
