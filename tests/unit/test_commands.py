@@ -426,17 +426,17 @@ def test_parser_unrecognized(capsys, user_input):
         (
             "commir",
             "Command 'commir' not found. Use 'help' for more info\n\n"
-            "The most similar command is:\n\tcommit\n\n",
+            "The most similar command is:\n\tcommit\n",
         ),
         (
             "lits",
             "Command 'lits' not found. Use 'help' for more info\n\n"
-            "The most similar command is:\n\tlist\n\n",
+            "The most similar command is:\n\tlist\n",
         ),
         (
             "gener",
             "Command 'gener' not found. Use 'help' for more info\n\n"
-            "The most similar commands are:\n\tgen\ngenerate\n\n",
+            "The most similar commands are:\n\tgenerate\n\tgen\n",
         ),
     ],
 )
