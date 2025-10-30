@@ -443,7 +443,7 @@ def test_parser_unrecognized(capsys, user_input):
 @patch("commizard.commands.output.print_error")
 def test_parser_typo(mock_perr, user_input, expected_err):
     result = commands.parser(user_input)
-    assert mock_perr.assert_called_once_with(expected_err)
+    mock_perr.assert_called_once_with(expected_err)
     assert result == 1
 
 
