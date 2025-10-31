@@ -17,6 +17,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Added suggestions for incorrect user input: for example if the user writes
   gem, We'll suggest gen as the most similar command, with up to 2
   recommendations.
+- Added error handling for incorrect arguments passed when launching commizard.
+  The program now redirects the user to use -h for correct option passing
 
 ### Changed
 
