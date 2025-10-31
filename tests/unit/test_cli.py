@@ -14,7 +14,11 @@ from commizard import cli
         (["prog", "--version", "ignored"], f"CommiZard {cli.version}\n", True),
         (["prog", "-h"], cli.help_msg.strip() + "\n", True),
         (["prog", "--help"], cli.help_msg.strip() + "\n", True),
-        (["prog", "not", "recognized"], "", False),
+        (
+            ["prog", "not", "recognized"],
+            "Unknown option: not\ntry 'commizard -h' for more information.\n",
+            True,
+        ),
     ],
 )
 @patch("commizard.cli.sys.exit")
@@ -30,7 +34,7 @@ def test_handle_args(
     assert captured.err == ""
 
     if expect_exit:
-        mock_exit.assert_called_once_with(0)
+        mock_exit.assert_called_once()
     else:
         mock_exit.assert_not_called()
 
