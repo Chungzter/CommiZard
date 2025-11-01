@@ -23,7 +23,14 @@ Options:
 def handle_args():
     if len(sys.argv) < 2:
         return
-    supported_args = ["-v", "--version", "-h", "--help"]
+    supported_args = [
+        "-v",
+        "--version",
+        "-h",
+        "--help",
+        "--no-banner",
+        "--no-color",
+    ]
     if sys.argv[1] not in supported_args:
         print(f"Unknown option: {sys.argv[1]}")
         print("try 'commizard -h' for more information.")
