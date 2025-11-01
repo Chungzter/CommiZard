@@ -78,7 +78,7 @@ def main() -> int:
         return 1
 
     if config.SHOW_BANNER:
-        start.print_welcome()
+        start.print_welcome(config.USE_COLOR)
 
     try:
         while True:
