@@ -4,7 +4,7 @@ import concurrent.futures
 import sys
 
 from . import __version__ as version
-from . import commands, output, start
+from . import commands, output, start, config
 
 help_msg = """
 Commit writing wizard
@@ -32,6 +32,8 @@ def handle_args():
     elif sys.argv[1] in ("-h", "--help"):
         print(help_msg.strip(), end="\n")
         sys.exit(0)
+    elif sys.argv[1] == "--no-welcome":
+        config.show_welcome = False
 
 
 def main() -> int:
@@ -62,7 +64,8 @@ def main() -> int:
         output.print_error("not inside work tree")
         return 1
 
-    start.print_welcome()
+    if config.SHOW_BANNER:
+        start.print_welcome()
 
     try:
         while True:
