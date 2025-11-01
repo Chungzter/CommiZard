@@ -33,7 +33,7 @@ def handle_args():
         print(help_msg.strip(), end="\n")
         sys.exit(0)
     elif sys.argv[1] == "--no-welcome":
-        config.show_welcome = False
+        config.SHOW_BANNER = False
 
 
 def main() -> int:
