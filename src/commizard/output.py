@@ -7,6 +7,13 @@ from rich.console import Console
 console: Console | None = None
 error_console: Console | None = None
 
+
+def init_console(color: bool = True):
+    global console, error_console
+    console = Console()
+    error_console = Console(stderr=True)
+
+
 def print_success(message: str) -> None:
     """
     prints success message in green color

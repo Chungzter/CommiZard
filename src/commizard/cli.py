@@ -4,7 +4,7 @@ import concurrent.futures
 import sys
 
 from . import __version__ as version
-from . import commands, output, start, config
+from . import commands, config, output, start
 
 help_msg = """
 Commit writing wizard
