@@ -16,7 +16,7 @@ Options:
   -h, --help       Show help for commizard
   -v, --version    Show version information
   --no-color       Don't colorize output
-  --no-banner      Don't show welcome banner
+  --no-banner      Disable the ASCII welcome banner
 """
 
 
