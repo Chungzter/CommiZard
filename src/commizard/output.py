@@ -9,6 +9,12 @@ error_console: Console = Console()
 
 
 def init_console(color: bool):
+    """
+    Initialize Console instances.
+
+    Args:
+        color (bool): Whether to use color.
+    """
     global console, error_console
     if color:
         error_console = Console(stderr=True, style="bold red")
