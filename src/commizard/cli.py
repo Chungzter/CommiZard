@@ -10,13 +10,13 @@ help_msg = """
 Commit writing wizard
 
 Usage:
-  commizard [-v | --version] [-h | --help] [--no-color] [--no-welcome]
+  commizard [-v | --version] [-h | --help] [--no-color] [--no-banner]
 
 Options:
   -h, --help       Show help for commizard
   -v, --version    Show version information
   --no-color       Don't colorize output
-  --no-welcome     Don't show welcome banner
+  --no-banner      Don't show welcome banner
 """
 
 
@@ -34,7 +34,7 @@ def handle_args():
     elif sys.argv[1] in ("-h", "--help"):
         print(help_msg.strip(), end="\n")
         sys.exit(0)
-    elif sys.argv[1] == "--no-welcome":
+    elif sys.argv[1] == "--no-banner":
         config.SHOW_BANNER = False
     elif sys.argv[1] == "--no-color":
         config.USE_COLOR = False
