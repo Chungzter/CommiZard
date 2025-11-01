@@ -4,8 +4,8 @@ import textwrap
 
 from rich.console import Console
 
-console = Console()
-
+console: Console | None = None
+error_console: Console | None = None
 
 def print_success(message: str) -> None:
     """
