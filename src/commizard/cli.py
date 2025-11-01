@@ -54,7 +54,7 @@ def main() -> int:
         git_ok = fut_git.result()
         ai_ok = fut_ai.result()
         worktree_ok = fut_worktree.result()
-
+    output.init_console(config.SHOW_BANNER)
     if not git_ok:
         output.print_error("git not installed")
         return 1
