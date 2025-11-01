@@ -10,11 +10,13 @@ help_msg = """
 Commit writing wizard
 
 Usage:
-  commizard [-v | --version] [-h | --help]
+  commizard [-v | --version] [-h | --help] [--no-color] [--no-welcome]
 
 Options:
   -h, --help       Show help for commizard
   -v, --version    Show version information
+  --no-color       Don't colorize output
+  --no-welcome     Don't show welcome banner
 """
 
 
@@ -54,7 +56,9 @@ def main() -> int:
         git_ok = fut_git.result()
         ai_ok = fut_ai.result()
         worktree_ok = fut_worktree.result()
+
     output.init_console(config.SHOW_BANNER)
+
     if not git_ok:
         output.print_error("git not installed")
         return 1
