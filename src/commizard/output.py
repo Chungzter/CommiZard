@@ -8,7 +8,7 @@ console: Console | None = None
 error_console: Console | None = None
 
 
-def init_console(color: bool = True):
+def init_console(color: bool):
     global console, error_console
     console = Console()
     error_console = Console(stderr=True)

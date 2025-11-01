@@ -34,6 +34,8 @@ def handle_args():
         sys.exit(0)
     elif sys.argv[1] == "--no-welcome":
         config.SHOW_BANNER = False
+    elif sys.argv[1] == "--no-color":
+        config.USE_COLOR = False
 
 
 def main() -> int:
