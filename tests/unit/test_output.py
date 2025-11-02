@@ -24,6 +24,7 @@ def test_init_console(mock_console, arg):
     init_console(arg)
     mock_console.assert_called()
 
+
 @patch("commizard.output.console.print")
 def test_print_success(mock_print):
     print_success("All good")
@@ -35,15 +36,18 @@ def test_print_error(mock_err):
     print_error("Something went wrong")
     mock_err.assert_called_once_with("Error: Something went wrong")
 
+
 @patch("commizard.output.console.print")
 def test_print_warning(mock_print):
     print_warning("Careful!")
     mock_print.assert_called_once_with("[yellow]Warning: Careful![/yellow]")
 
+
 @patch("commizard.output.console.print")
 def test_print_generated(mock_print):
     print_generated("Auto-created file")
     mock_print.assert_called_once_with("[blue]Auto-created file[/blue]")
+
 
 @pytest.mark.parametrize(
     "text,width,expected",
