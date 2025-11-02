@@ -24,36 +24,26 @@ def test_init_console(mock_console, arg):
     init_console(arg)
     mock_console.assert_called()
 
-
-def test_print_success(capsys):
+@patch("commizard.output.console.print")
+def test_print_success(mock_print):
     print_success("All good")
-    captured = capsys.readouterr()
-
-    assert "All good" in captured.out
-    assert "[green]" not in captured.out  # markup should be rendered
-    assert captured.err == ""
+    mock_print.assert_called_once_with("[green]All good[/green]")
 
 
-def test_print_error(capsys):
+@patch("commizard.output.error_console.print")
+def test_print_error(mock_err):
     print_error("Something went wrong")
-    captured = capsys.readouterr()
-    assert "Error: Something went wrong" in captured.err
-    assert captured.out == ""
+    mock_err.assert_called_once_with("Error: Something went wrong")
 
-
-def test_print_warning(capsys):
+@patch("commizard.output.console.print")
+def test_print_warning(mock_print):
     print_warning("Careful!")
-    captured = capsys.readouterr()
-    assert "Warning: Careful!" in captured.out
-    assert captured.err == ""
+    mock_print.assert_called_once_with("[yellow]Warning: Careful![/yellow]")
 
-
-def test_print_generated(capsys):
+@patch("commizard.output.console.print")
+def test_print_generated(mock_print):
     print_generated("Auto-created file")
-    captured = capsys.readouterr()
-    assert "Auto-created file" in captured.out
-    assert captured.err == ""
-
+    mock_print.assert_called_once_with("[blue]Auto-created file[/blue]")
 
 @pytest.mark.parametrize(
     "text,width,expected",
