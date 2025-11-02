@@ -92,7 +92,9 @@ def test_gradient_text_none_triplet():
         ("256", False, False),
     ],
 )
-def test_print_welcome(monkeypatch, capsys, color_sys, expect_gradient, should_colorize):
+def test_print_welcome(
+    monkeypatch, capsys, color_sys, expect_gradient, should_colorize
+):
     # class to patch instead of rich.Console() class
     class DummyConsole:
         def __init__(self, color_system):
@@ -119,6 +121,7 @@ def test_print_welcome(monkeypatch, capsys, color_sys, expect_gradient, should_c
             assert "[bold purple]" in captured
     else:
         assert "[#" not in captured
+
 
 @pytest.mark.parametrize(
     "git_path, expected",

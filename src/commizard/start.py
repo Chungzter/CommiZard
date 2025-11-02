@@ -68,7 +68,7 @@ def print_welcome(color: bool) -> None:
     Print the welcome screen. Right now it's the ASCII art of the project's
     name.
     """
-    console = Console(color_system= "auto" if color else None)
+    console = Console(color_system="auto" if color else None)
     if console.color_system in ("truecolor", "256"):
         console.print(gradient_text(text_banner, start_color, end_color))
 

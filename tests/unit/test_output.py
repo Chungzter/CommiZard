@@ -1,12 +1,28 @@
+from unittest.mock import patch
+
 import pytest
 
 from commizard.output import (
+    init_console,
     print_error,
     print_generated,
     print_success,
     print_warning,
     wrap_text,
 )
+
+
+@pytest.mark.parametrize(
+    "arg",
+    [
+        True,
+        False,
+    ],
+)
+@patch("commizard.output.Console")
+def test_init_console(mock_console, arg):
+    init_console(arg)
+    mock_console.assert_called()
 
 
 def test_print_success(capsys):
