@@ -82,35 +82,45 @@ def test_gradient_text_none_triplet():
 
 
 @pytest.mark.parametrize(
-    "color_system, expect_gradient",
+    "color_sys, expect_gradient, should_colorize",
     [
-        ("truecolor", True),
-        ("256", True),
-        ("windows", False),
-        (None, False),
+        ("truecolor", True, True),
+        ("256", True, True),
+        ("windows", False, True),
+        (None, False, True),
+        ("truecolor", False, False),
+        ("256", False, False),
     ],
 )
-def test_print_welcome(monkeypatch, capsys, color_system, expect_gradient):
+def test_print_welcome(
+    monkeypatch, capsys, color_sys, expect_gradient, should_colorize
+):
     # class to patch instead of rich.Console() class
     class DummyConsole:
-        def __init__(self):
-            self.color_system = color_system
+        def __init__(self, color_system):
+            if color_system == "auto":
+                self.color_system = color_sys
+            else:
+                self.color_system = color_system
 
         def print(self, msg):
             print(msg)
 
     monkeypatch.setattr(start, "Console", DummyConsole)
 
-    start.print_welcome()
+    start.print_welcome(should_colorize)
 
     # Hook to stdout
     captured = capsys.readouterr().out
 
-    if expect_gradient:
-        assert "[#" in captured
+    if should_colorize:
+        if expect_gradient:
+            assert "[#" in captured
+        else:
+            # Should contain fallback purple markup
+            assert "[bold purple]" in captured
     else:
-        # Should contain fallback purple markup
-        assert "[bold purple]" in captured
+        assert "[#" not in captured
 
 
 @pytest.mark.parametrize(

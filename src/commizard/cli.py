@@ -4,24 +4,33 @@ import concurrent.futures
 import sys
 
 from . import __version__ as version
-from . import commands, output, start
+from . import commands, config, output, start
 
 help_msg = """
 Commit writing wizard
 
 Usage:
-  commizard [-v | --version] [-h | --help]
+  commizard [-v | --version] [-h | --help] [--no-color] [--no-banner]
 
 Options:
   -h, --help       Show help for commizard
   -v, --version    Show version information
+  --no-color       Don't colorize output
+  --no-banner      Disable the ASCII welcome banner
 """
 
 
 def handle_args():
     if len(sys.argv) < 2:
         return
-    supported_args = ["-v", "--version", "-h", "--help"]
+    supported_args = [
+        "-v",
+        "--version",
+        "-h",
+        "--help",
+        "--no-banner",
+        "--no-color",
+    ]
     if sys.argv[1] not in supported_args:
         print(f"Unknown option: {sys.argv[1]}")
         print("try 'commizard -h' for more information.")
@@ -32,6 +41,10 @@ def handle_args():
     elif sys.argv[1] in ("-h", "--help"):
         print(help_msg.strip(), end="\n")
         sys.exit(0)
+    elif sys.argv[1] == "--no-banner":
+        config.SHOW_BANNER = False
+    elif sys.argv[1] == "--no-color":
+        config.USE_COLOR = False
 
 
 def main() -> int:
@@ -51,6 +64,8 @@ def main() -> int:
         ai_ok = fut_ai.result()
         worktree_ok = fut_worktree.result()
 
+    output.init_console(config.USE_COLOR)
+
     if not git_ok:
         output.print_error("git not installed")
         return 1
@@ -62,7 +77,8 @@ def main() -> int:
         output.print_error("not inside work tree")
         return 1
 
-    start.print_welcome()
+    if config.SHOW_BANNER:
+        start.print_welcome(config.USE_COLOR)
 
     try:
         while True:

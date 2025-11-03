@@ -7,6 +7,9 @@ GEN_ENDPOINT: str = OLLAMA_DEFAULT_GEN_ENDPOINT
 # right now.
 LLM_URL: str = OLLAMA_DEFAULT_URL
 
+USE_COLOR: bool = True
+SHOW_BANNER: bool = True
+
 
 def set_url(url: str):
     """

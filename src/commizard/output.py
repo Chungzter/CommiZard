@@ -4,7 +4,23 @@ import textwrap
 
 from rich.console import Console
 
-console = Console()
+console: Console = Console()
+error_console: Console = Console()
+
+
+def init_console(color: bool):
+    """
+    Initialize Console instances.
+
+    Args:
+        color (bool): Whether to use color.
+    """
+    global console, error_console
+    if color:
+        error_console = Console(stderr=True, style="bold red")
+    else:
+        console = Console(color_system=None)
+        error_console = Console(stderr=True, color_system=None)
 
 
 def print_success(message: str) -> None:
@@ -18,7 +34,6 @@ def print_error(message: str) -> None:
     """
     prints error message bold red
     """
-    error_console = Console(stderr=True, style="bold red")
     error_console.print(f"Error: {message}")
 
 
