@@ -19,6 +19,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   recommendations.
 - Added error handling for incorrect arguments passed when launching commizard.
   The program now redirects the user to use -h for correct option passing
+- Added `--no-color` option: disables color output on stdout and stderr.  
+- Added `--no-banner` option: suppresses the ASCII banner from being printed.
 
 ### Changed
 
