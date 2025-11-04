@@ -44,7 +44,9 @@ can help improve this project:
 
 ### Development Workflow
 
-Before committing your changes:
+1. If you're working on an issue, please ask to get assigned to that issue.
+2. On a new branch from your fork, implement the changes you wish to the project
+3. Before committing your changes:
 
 - You can use the nox session to check for possible problems:
     ```bash
@@ -56,16 +58,12 @@ unit tests.
 You can run these steps individually with their respective sessions,
 and more!
 
-For example, you can run the e2e tests with `nox -s e2e_test`, or get code
-coverage reports with `nox -s test --cov`. Use `nox -l` for a full list of
-all available sessions.
+- For example, you can run the e2e tests with `nox -s e2e_test`, or get code
+  coverage reports with `nox -s test -- cov`. Use `nox -l` for a full list of
+  all available sessions.
 
-
-> [!TIP]
-> Run `ruff format && ruff check` before every commit to keep code style
-> consistent!
-
-✅ I'll review your PR as soon as I can!
+4. When you're done, submit a pull request and request a review.
+- ✅ I'll review your PR as soon as I can!
 
 ✅ Even small fixes like typos, docs, or tests are welcome!
 
