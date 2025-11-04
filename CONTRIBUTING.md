@@ -76,7 +76,7 @@ giving feedback, every contribution is appreciated.
 
 ## Starter Tasks
 
-Not ready to write core features? No problem! These “behind-the-scenes” tasks
+Not ready to write core features? No problem! These "behind-the-scenes" tasks
 are **incredibly valuable**:
 
 - ✍️ **Improve documentation**: Fix typos, clarify confusing sections, add
@@ -87,7 +87,7 @@ are **incredibly valuable**:
 - 🔗 **Fix broken links or badges**: In README, docs, etc.
 - **Improve this CONTRIBUTING.md file**: Make it clearer? More welcoming? Go
   for it!
-- 🖼️ **Add example screenshots or asciinema recordings** — Show CommiZard in
+- 🖼️ **Add example screenshots or asciinema recordings**: Show CommiZard in
   action!
 - 🧹 **Run linters & report issues**: Try running other linters like `flake8` or
   `pylint` on the codebase. Found warnings or style inconsistencies? Open an
@@ -98,9 +98,9 @@ are **incredibly valuable**:
 > ways to do it!
 
 Need guidance? Just comment on an issue (or open one) saying *"I'd like to help
-with this!"*. I’ll happily walk you through it.
+with this!"*. I'll happily walk you through it.
 
 ---
 
-Whether you’re reporting a typo or sending a PR, you’re helping more than you
+Whether you're reporting a typo or sending a PR, you're helping more than you
 know! Thanks in advance.
