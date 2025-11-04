@@ -22,6 +22,7 @@ can help improve this project:
 **Prerequisites:**
 
 - [Ollama](https://ollama.ai/) (required only for local LLM API work)
+- Nox (optional, highly recommended for the smoothest workflow)
 
 **Installation:**
 
