@@ -93,7 +93,7 @@ are **incredibly valuable**:
   `pylint` on the codebase. Found warnings or style inconsistencies? Open an
   issue (or better yet, fix them and push a PR!).
 
-> 💬 Even just asking questions — like "How does this part work?" or "Why is it
+> 💬 Even just asking questions, like "How does this part work?" or "Why is it
 > built this way?" can be super helpful. Sometimes explaining it reveals better
 > ways to do it!
 
