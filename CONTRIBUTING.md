@@ -22,7 +22,7 @@ can help improve this project:
 **Prerequisites:**
 
 - [Ollama](https://ollama.ai/) (required only for local LLM API work)
-- Nox (optional, highly recommended for the smoothest workflow)
+- Nox: this is the standard tool we use for automation.
 
 **Installation:**
 
@@ -32,39 +32,34 @@ can help improve this project:
    cd CommiZard
    ```
 
-2. Install in development mode with dev dependencies:
+2. Create a virtual environment and install in development mode with dev
+   dependencies:
    ```bash
-   pip install -e .[dev]
+   nox -s venv
+   # in linux:
+   source ./.nox/venv/bin/activate
+   # in windows:
+   .\.nox\venv\Scripts\activate
    ```
 
 ### Development Workflow
 
 Before committing your changes:
 
-1. Format your code:
-   ```bash
-   ruff format
-   ```
+- You can use the nox session to check for possible problems:
+    ```bash
+    nox -s check
+    ```
 
-2. Lint with Ruff:
-   ```bash
-   ruff check
-   ```
+this session formats the codebase, runs the `ruff check` and `mypy` linters, and
+unit tests.
+You can run these steps individually with their respective sessions,
+and more!
 
-3. Type check with mypy (optional but recommended):
-   ```bash
-   mypy .
-   ```
+For example, you can run the e2e tests with `nox -s e2e_test`, or get code
+coverage reports with `nox -s test --cov`. Use `nox -l` for a full list of
+all available sessions.
 
-4. Run tests:
-   ```bash
-   pytest
-   ```
-
-   Or with coverage:
-   ```bash
-   pytest --cov=commizard tests/
-   ```
 
 > [!TIP]
 > Run `ruff format && ruff check` before every commit to keep code style
