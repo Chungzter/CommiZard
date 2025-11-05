@@ -16,7 +16,11 @@ def lint(session):
     """
     ruff check . && mypy .
     """
-    session.run("ruff", "check", ".", external=True)
+    if "fix" in session.posargs:
+        session.run("ruff", "check", ".", "--fix", external=True)
+        session.log("Ran Ruff with --fix argument to do safe fixes")
+    else:
+        session.run("ruff", "check", ".", external=True)
     session.run("mypy", ".", external=True)
 
 
@@ -69,8 +73,10 @@ def check(session):
         session.notify("format", ["check"])
     else:
         session.notify("format")
-
-    session.notify("lint")
+    if "fix" in session.posargs:
+        session.notify("lint", ["fix"])
+    else:
+        session.notify("lint")
     session.notify("test")
 
 
