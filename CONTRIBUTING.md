@@ -55,8 +55,15 @@ can help improve this project:
 
 this session formats the codebase, runs the `ruff check` and `mypy` linters, and
 unit tests.
+
 You can run these steps individually with their respective sessions,
 and more!
+
+- If you encounter linter problems, you can use the fix argument with the check:
+    ```bash
+    nox -s check -- fix
+    ```
+This tries to fix the errors ruff recognizes as 'safe to fix'.
 
 - For example, you can run the e2e tests with `nox -s e2e_test`, or get code
   coverage reports with `nox -s test -- cov`. Use `nox -l` for a full list of
@@ -65,7 +72,7 @@ and more!
 4. When you're done, submit a pull request and request a review.
 - ✅ I'll review your PR as soon as I can!
 
-✅ Even small fixes like typos, docs, or tests are welcome!
+Even small fixes like typos, docs, or tests are welcome!
 
 ## 🧪 Testing & Quality
 
