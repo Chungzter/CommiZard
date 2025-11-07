@@ -49,6 +49,7 @@ dev = [
 [project.urls]
 Homepage = "https://github.com/Chungzter/CommiZard"
 Issues = "https://github.com/Chungzter/CommiZard/issues"
+Changelog = "https://github.com/Chungzter/CommiZard/blob/master/CHANGELOG.md"
 
 [project.scripts]
 commizard = "commizard.cli:main"
