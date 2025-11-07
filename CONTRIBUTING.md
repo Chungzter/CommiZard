@@ -22,6 +22,7 @@ can help improve this project:
 **Prerequisites:**
 
 - [Ollama](https://ollama.ai/) (required only for local LLM API work)
+- Nox: this is the standard tool we use for automation.
 
 **Installation:**
 
@@ -31,47 +32,47 @@ can help improve this project:
    cd CommiZard
    ```
 
-2. Install in development mode with dev dependencies:
+2. Create a virtual environment and install in development mode with dev
+   dependencies:
    ```bash
-   pip install -e .[dev]
+   nox -s venv
+   # in linux:
+   source ./.nox/venv/bin/activate
+   # in windows:
+   .\.nox\venv\Scripts\activate
    ```
 
 ### Development Workflow
 
-Before committing your changes:
+1. If you're working on an issue, please ask to get assigned to that issue.
+2. On a new branch from your fork, implement the changes you wish to the project
+3. Before committing your changes:
 
-1. Format your code:
-   ```bash
-   ruff format
-   ```
+- You can use the nox session to check for possible problems:
+    ```bash
+    nox -s check
+    ```
 
-2. Lint with Ruff:
-   ```bash
-   ruff check
-   ```
+this session formats the codebase, runs the `ruff check` and `mypy` linters, and
+unit tests.
 
-3. Type check with mypy (optional but recommended):
-   ```bash
-   mypy .
-   ```
+You can run these steps individually with their respective sessions,
+and more!
 
-4. Run tests:
-   ```bash
-   pytest
-   ```
+- If you encounter linter problems, you can use the fix argument with the check:
+    ```bash
+    nox -s check -- fix
+    ```
+This tries to fix the errors ruff recognizes as 'safe to fix'.
 
-   Or with coverage:
-   ```bash
-   pytest --cov=commizard tests/
-   ```
+- For example, you can run the e2e tests with `nox -s e2e_test`, or get code
+  coverage reports with `nox -s test -- cov`. Use `nox -l` for a full list of
+  all available sessions.
 
-> [!TIP]
-> Run `ruff format && ruff check` before every commit to keep code style
-> consistent!
+4. When you're done, submit a pull request and request a review.
+- ✅ I'll review your PR as soon as I can!
 
-✅ I'll review your PR as soon as I can!
-
-✅ Even small fixes like typos, docs, or tests are welcome!
+Even small fixes like typos, docs, or tests are welcome!
 
 ## 🧪 Testing & Quality
 
@@ -82,7 +83,7 @@ giving feedback, every contribution is appreciated.
 
 ## Starter Tasks
 
-Not ready to write core features? No problem! These “behind-the-scenes” tasks
+Not ready to write core features? No problem! These "behind-the-scenes" tasks
 are **incredibly valuable**:
 
 - ✍️ **Improve documentation**: Fix typos, clarify confusing sections, add
@@ -93,20 +94,20 @@ are **incredibly valuable**:
 - 🔗 **Fix broken links or badges**: In README, docs, etc.
 - **Improve this CONTRIBUTING.md file**: Make it clearer? More welcoming? Go
   for it!
-- 🖼️ **Add example screenshots or asciinema recordings** — Show CommiZard in
+- 🖼️ **Add example screenshots or asciinema recordings**: Show CommiZard in
   action!
 - 🧹 **Run linters & report issues**: Try running other linters like `flake8` or
   `pylint` on the codebase. Found warnings or style inconsistencies? Open an
   issue (or better yet, fix them and push a PR!).
 
-> 💬 Even just asking questions — like "How does this part work?" or "Why is it
+> 💬 Even just asking questions, like "How does this part work?" or "Why is it
 > built this way?" can be super helpful. Sometimes explaining it reveals better
 > ways to do it!
 
 Need guidance? Just comment on an issue (or open one) saying *"I'd like to help
-with this!"*. I’ll happily walk you through it.
+with this!"*. I'll happily walk you through it.
 
 ---
 
-Whether you’re reporting a typo or sending a PR, you’re helping more than you
+Whether you're reporting a typo or sending a PR, you're helping more than you
 know! Thanks in advance.

@@ -29,7 +29,7 @@ Generate, tweak, and copy commit messages with full control, right from a REPL.
 > ⚠️ **Heads up!** CommiZard is in **alpha development**. Not all features are
 > complete or stable yet.
 >
-> CommiZard is under active development — expect bugs, crashes, and missing
+> CommiZard is under active development. Expect bugs, crashes, and missing
 > functionality.
 > Please [open an issue](https://github.com/Chungzter/CommiZard/issues) if you
 > encounter problems.
@@ -149,7 +149,7 @@ If you’d like to get involved:
   [Starter Tasks section](./CONTRIBUTING.md#starter-tasks). Check it out if
   you’re not ready to dive into core features yet.
 
-Not sure where to start? Open an issue or comment “I’d like to help with this,”
+Not sure where to start? Open an issue or comment "I’d like to help with this,"
 and we’ll figure it out together!
 
 ## License
