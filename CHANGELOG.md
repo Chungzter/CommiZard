@@ -8,6 +8,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-11-07
+
 ### Added
 
 - Added `help [command]` to display usage information and guide users within the
@@ -19,7 +21,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   recommendations.
 - Added error handling for incorrect arguments passed when launching commizard.
   The program now redirects the user to use -h for correct option passing
-- Added `--no-color` option: disables color output on stdout and stderr.  
+- Added `--no-color` option: disables color output on stdout and stderr.
 - Added `--no-banner` option: suppresses the ASCII banner from being printed.
 
 ### Changed
@@ -117,7 +119,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - MIT open source license.
 - PyPI release: the package can now be installed with `pip install commizard`.
 
-[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.2.0...master
+[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.3.0...master
+
+[0.3.0]: https://github.com/Chungzter/CommiZard/compare/v0.2.0...v0.3.0
 
 [0.2.0]: https://github.com/Chungzter/CommiZard/compare/v0.1.0...v0.2.0
 
