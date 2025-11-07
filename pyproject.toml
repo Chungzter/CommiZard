@@ -2,6 +2,14 @@
 requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build]
+exclude = [
+    ".github",
+    "tests",
+    ".gitattributes",
+    "noxfile.py",
+]
+
 [project]
 name = "commizard"
 dynamic = ["version"]
