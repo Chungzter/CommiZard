@@ -2,6 +2,14 @@
 requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build]
+exclude = [
+    ".github",
+    "tests",
+    ".gitattributes",
+    "noxfile.py",
+]
+
 [project]
 name = "commizard"
 dynamic = ["version"]
@@ -18,8 +26,20 @@ readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "Programming Language :: Python :: 3",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Version Control :: Git",
 ]
 license = "MIT"
 license-files = ["LICENSE"]
@@ -41,6 +61,7 @@ dev = [
 [project.urls]
 Homepage = "https://github.com/Chungzter/CommiZard"
 Issues = "https://github.com/Chungzter/CommiZard/issues"
+Changelog = "https://github.com/Chungzter/CommiZard/blob/master/CHANGELOG.md"
 
 [project.scripts]
 commizard = "commizard.cli:main"
