@@ -17,7 +17,7 @@ Generate, tweak, and copy commit messages with full control, right from a REPL.
   commit variations without restarting.
 - **Smart Generation**: Creates commit messages directly from your `git diff`.
 - **Simple CLI**: Familiar, intuitive commands. No learning curve.
-- **Flexible AI** backends: Easily swap models. Online model support planned!
+- **Flexible AI backends**: Easily swap models. Online model support planned!
 - **Clipboard Magic**: Instantly copy generated messages to your system
   clipboard, ready to paste into `git commit`.
 - **Zero Daemons**: No background processes, No Git hooks, no surprises.
