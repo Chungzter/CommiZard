@@ -3,8 +3,9 @@ from __future__ import annotations
 import textwrap
 
 from rich.console import Console
-from rich.table import Table
 from rich.padding import Padding
+from rich.table import Table
+
 console: Console = Console()
 error_console: Console = Console()
 
@@ -52,14 +53,14 @@ def print_generated(message: str) -> None:
     console.print(f"[blue]{message}[/blue]")
 
 
-def print_table(cols: list[str], rows: list[list[str]]):
+def print_table(cols: list[str], rows: list[list[str]], title: str | None=None):
     """
     prints a table with given columns and rows.
     Args:
         cols: A list of column names.
         rows: A list of rows to print.
     """
-    table = Table(title="Available Models")
+    table = Table(title=title)
 
     for col in cols:
         table.add_column(col, justify="center")
