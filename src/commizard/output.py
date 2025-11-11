@@ -53,12 +53,15 @@ def print_generated(message: str) -> None:
     console.print(f"[blue]{message}[/blue]")
 
 
-def print_table(cols: list[str], rows: list[list[str]], title: str | None=None):
+def print_table(
+    cols: list[str], rows: list[list[str]], title: str | None = None
+):
     """
     prints a table with given columns and rows.
     Args:
         cols: A list of column names.
         rows: A list of rows to print.
+        title (optional): The title of the table.
     """
     table = Table(title=title)
 
