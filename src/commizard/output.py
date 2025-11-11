@@ -59,7 +59,7 @@ def print_table(cols: list[str], rows: list[list[str]]):
         cols: A list of column names.
         rows: A list of rows to print.
     """
-    table = Table()
+    table = Table(title="Available Models")
 
     for col in cols:
         table.add_column(col, justify="center")
