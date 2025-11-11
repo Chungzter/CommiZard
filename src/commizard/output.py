@@ -59,7 +59,11 @@ def print_table(cols: list[str], rows: list[list[str]]):
         cols: A list of column names.
         rows: A list of rows to print.
     """
-    table = Table(*cols)
+    table = Table()
+
+    for col in cols:
+        table.add_column(col, justify="center")
+
     for row in rows:
         table.add_row(*row)
     table = Padding(table, 1)
