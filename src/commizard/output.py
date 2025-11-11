@@ -52,17 +52,18 @@ def print_generated(message: str) -> None:
     console.print(f"[blue]{message}[/blue]")
 
 
-def print_table(cols: list[str], rows: list[str]):
+def print_table(cols: list[str], rows: list[list[str]]):
     """
     prints a table with given columns and rows.
     Args:
-        cols: the column names.
-        rows: the rows to print.
+        cols: A list of column names.
+        rows: A list of rows to print.
     """
-    table = Table(*cols)
+    table = Table(*cols, padding=1)
     for row in rows:
-        table.add_row(row)
+        table.add_row(*row)
     console.print(table)
+
 
 # fixme: this function destroys bulletin board outputs. We shouldn't blindly
 #        wrap these lists into each-other.
