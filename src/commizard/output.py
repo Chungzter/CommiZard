@@ -3,7 +3,7 @@ from __future__ import annotations
 import textwrap
 
 from rich.console import Console
-
+from rich.table import Table
 console: Console = Console()
 error_console: Console = Console()
 
@@ -49,6 +49,14 @@ def print_generated(message: str) -> None:
     prints generated message in blue color
     """
     console.print(f"[blue]{message}[/blue]")
+def print_table(cols: list[str], rows: list[str]):
+    """
+    prints a table with given columns and rows.
+    Args:
+        cols: the column names.
+        rows: the rows to print.
+    """
+    table = Table(*cols)
 
 
 # fixme: this function destroys bulletin board outputs. We shouldn't blindly
