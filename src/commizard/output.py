@@ -4,7 +4,7 @@ import textwrap
 
 from rich.console import Console
 from rich.table import Table
-
+from rich.padding import Padding
 console: Console = Console()
 error_console: Console = Console()
 
@@ -59,9 +59,10 @@ def print_table(cols: list[str], rows: list[list[str]]):
         cols: A list of column names.
         rows: A list of rows to print.
     """
-    table = Table(*cols, padding=1)
+    table = Table(*cols)
     for row in rows:
         table.add_row(*row)
+    table = Padding(table, 1)
     console.print(table)
 
 
