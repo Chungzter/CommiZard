@@ -4,6 +4,7 @@ import textwrap
 
 from rich.console import Console
 from rich.table import Table
+
 console: Console = Console()
 error_console: Console = Console()
 
@@ -49,6 +50,8 @@ def print_generated(message: str) -> None:
     prints generated message in blue color
     """
     console.print(f"[blue]{message}[/blue]")
+
+
 def print_table(cols: list[str], rows: list[str]):
     """
     prints a table with given columns and rows.
@@ -57,7 +60,9 @@ def print_table(cols: list[str], rows: list[str]):
         rows: the rows to print.
     """
     table = Table(*cols)
-
+    for row in rows:
+        table.add_row(row)
+    console.print(table)
 
 # fixme: this function destroys bulletin board outputs. We shouldn't blindly
 #        wrap these lists into each-other.
