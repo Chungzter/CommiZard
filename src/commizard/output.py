@@ -67,7 +67,7 @@ def print_table(cols: list[str], rows: list[list[str]]):
     for row in rows:
         table.add_row(*row)
 
-    console.print(Padding(table, 1))
+    console.print(Padding(table, 1), end="")
 
 
 # fixme: this function destroys bulletin board outputs. We shouldn't blindly
