@@ -4,15 +4,7 @@ import pytest
 from rich.padding import Padding
 from rich.table import Table
 
-from commizard.output import (
-    init_console,
-    print_error,
-    print_generated,
-    print_success,
-    print_table,
-    print_warning,
-    wrap_text,
-)
+from commizard import output
 
 
 @pytest.mark.parametrize(
@@ -24,31 +16,31 @@ from commizard.output import (
 )
 @patch("commizard.output.Console")
 def test_init_console(mock_console, arg):
-    init_console(arg)
+    output.init_console(arg)
     mock_console.assert_called()
 
 
 @patch("commizard.output.console.print")
 def test_print_success(mock_print):
-    print_success("All good")
+    output.print_success("All good")
     mock_print.assert_called_once_with("[green]All good[/green]")
 
 
 @patch("commizard.output.error_console.print")
 def test_print_error(mock_err):
-    print_error("Something went wrong")
+    output.print_error("Something went wrong")
     mock_err.assert_called_once_with("Error: Something went wrong")
 
 
 @patch("commizard.output.console.print")
 def test_print_warning(mock_print):
-    print_warning("Careful!")
+    output.print_warning("Careful!")
     mock_print.assert_called_once_with("[yellow]Warning: Careful![/yellow]")
 
 
 @patch("commizard.output.console.print")
 def test_print_generated(mock_print):
-    print_generated("Auto-created file")
+    output.print_generated("Auto-created file")
     mock_print.assert_called_once_with("[blue]Auto-created file[/blue]")
 
 
@@ -62,7 +54,7 @@ def test_print_generated(mock_print):
 )
 @patch("commizard.output.console.print")
 def test_print_table(mock_print, cols, rows, title):
-    print_table(cols, rows, title)
+    output.print_table(cols, rows, title)
 
     mock_print.assert_called_once()
 
@@ -104,5 +96,5 @@ def test_print_table(mock_print, cols, rows, title):
     ],
 )
 def test_wrap_text(text, width, expected):
-    result = wrap_text(text, width=width)
+    result = output.wrap_text(text, width=width)
     assert result == expected
