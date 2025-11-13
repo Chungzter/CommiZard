@@ -1,12 +1,15 @@
 from unittest.mock import patch
 
 import pytest
+from rich.padding import Padding
+from rich.table import Table
 
 from commizard.output import (
     init_console,
     print_error,
     print_generated,
     print_success,
+    print_table,
     print_warning,
     wrap_text,
 )
@@ -47,6 +50,39 @@ def test_print_warning(mock_print):
 def test_print_generated(mock_print):
     print_generated("Auto-created file")
     mock_print.assert_called_once_with("[blue]Auto-created file[/blue]")
+
+
+@pytest.mark.parametrize(
+    "cols,rows,title",
+    [
+        (["Name", "Age"], [["Alice", "23"], ["Bob", "30"]], "People"),
+        (["X", "Y", "Z"], [["1", "2", "3"]], None),
+        ([], [], "Empty Table"),
+    ],
+)
+@patch("commizard.output.console.print")
+def test_print_table(mock_print, cols, rows, title):
+    print_table(cols, rows, title)
+
+    # Validate console.print called once with Padding(table, 1)
+    mock_print.assert_called_once()
+    args, _ = mock_print.call_args
+    printed_obj = args[0]
+    table = printed_obj.renderable
+
+    # Check the printed object is a Padding wrapping a Table
+    assert isinstance(printed_obj, Padding)
+    assert isinstance(table, Table)
+
+    # Check the title is set correctly
+    if title:
+        assert table.title == title
+    else:
+        assert table.title is None
+
+    # Check column headers and number of rows
+    assert [c.header for c in table.columns] == cols
+    assert len(table.rows) == len(rows)
 
 
 @pytest.mark.parametrize(
