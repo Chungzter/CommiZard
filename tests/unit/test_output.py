@@ -64,23 +64,20 @@ def test_print_generated(mock_print):
 def test_print_table(mock_print, cols, rows, title):
     print_table(cols, rows, title)
 
-    # Validate console.print called once with Padding(table, 1)
     mock_print.assert_called_once()
+
     args, _ = mock_print.call_args
     printed_obj = args[0]
     table = printed_obj.renderable
 
-    # Check the printed object is a Padding wrapping a Table
     assert isinstance(printed_obj, Padding)
     assert isinstance(table, Table)
 
-    # Check the title is set correctly
     if title:
         assert table.title == title
     else:
         assert table.title is None
 
-    # Check column headers and number of rows
     assert [c.header for c in table.columns] == cols
     assert len(table.rows) == len(rows)
 
