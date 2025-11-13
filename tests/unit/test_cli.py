@@ -47,6 +47,14 @@ def test_handle_no_banner(monkeypatch):
     assert not config.SHOW_BANNER
 
 
+def test_handle_no_color(monkeypatch):
+    monkeypatch.setattr(cli.sys, "argv", ["prog", "--no-color"])
+    monkeypatch.setattr(config, "USE_COLOR", True)
+
+    cli.handle_args()
+    assert not config.USE_COLOR
+
+
 @pytest.mark.parametrize(
     "git_installed, local_ai_avail, inside_work_tree, user_inputs, num_parse",
     [
