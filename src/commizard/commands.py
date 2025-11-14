@@ -129,8 +129,7 @@ def print_available_models(opts: list[str]) -> None:
     elif not llm_providers.available_models:
         output.print_warning("No local AI models found.")
         return
-    for model in llm_providers.available_models:
-        print(model)
+    output.print_table(["Model name"], llm_providers.available_models)
 
 
 def generate_message(opts: list[str]) -> None:
