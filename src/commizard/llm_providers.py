@@ -4,7 +4,7 @@ import requests
 
 from . import config, output
 
-available_models: list[str] | None = None
+available_models: list[list[str]] | None = None
 selected_model: str | None = None
 gen_message: str | None = None
 
@@ -90,7 +90,7 @@ def init_model_list() -> None:
 
 
 # TODO: see issue #10
-def list_locals() -> list[str] | None:
+def list_locals() -> list[list[str]] | None:
     """
     return a list of available local AI models
     """
@@ -99,7 +99,7 @@ def list_locals() -> list[str] | None:
     if r.is_error():
         return None
     r = r.response["models"]
-    return [model["name"] for model in r]
+    return [ [model["name"]] for model in r]
 
 
 def select_model(select_str: str) -> None:
