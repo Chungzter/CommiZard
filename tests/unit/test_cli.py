@@ -2,7 +2,7 @@ from unittest.mock import DEFAULT, patch
 
 import pytest
 
-from commizard import cli
+from commizard import cli, config
 
 
 @pytest.mark.parametrize(
@@ -37,6 +37,22 @@ def test_handle_args(
         mock_exit.assert_called_once()
     else:
         mock_exit.assert_not_called()
+
+
+def test_handle_no_banner(monkeypatch):
+    monkeypatch.setattr(cli.sys, "argv", ["prog", "--no-banner"])
+    monkeypatch.setattr(config, "SHOW_BANNER", True)
+
+    cli.handle_args()
+    assert not config.SHOW_BANNER
+
+
+def test_handle_no_color(monkeypatch):
+    monkeypatch.setattr(cli.sys, "argv", ["prog", "--no-color"])
+    monkeypatch.setattr(config, "USE_COLOR", True)
+
+    cli.handle_args()
+    assert not config.USE_COLOR
 
 
 @pytest.mark.parametrize(
