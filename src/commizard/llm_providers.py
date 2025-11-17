@@ -99,7 +99,7 @@ def list_locals() -> list[list[str]] | None:
     if r.is_error():
         return None
     r = r.response["models"]
-    return [ [model["name"]] for model in r]
+    return [ [model["name"], model["details"]["parameter_size"]] for model in r]
 
 
 def select_model(select_str: str) -> None:
