@@ -86,7 +86,7 @@ def init_model_list() -> None:
     variable.
     """
     global available_models
-    available_models = list_locals()
+    available_models = [member[0] for member in list_locals()]
 
 
 # TODO: see issue #10
