@@ -4,7 +4,7 @@ import requests
 
 from . import config, output
 
-available_models: list[list[str]] | None = None
+available_models: list[str] | None = None
 selected_model: str | None = None
 gen_message: str | None = None
 
