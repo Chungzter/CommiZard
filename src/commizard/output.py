@@ -10,7 +10,7 @@ console: Console = Console()
 error_console: Console = Console()
 
 
-def init_console(color: bool):
+def init_console(color: bool) -> None:
     """
     Initialize Console instances.
 
@@ -55,7 +55,7 @@ def print_generated(message: str) -> None:
 
 def print_table(
     cols: list[str], rows: list[list[str]], title: str | None = None
-):
+) -> None:
     """
     prints a table with given columns and rows.
     Args:
