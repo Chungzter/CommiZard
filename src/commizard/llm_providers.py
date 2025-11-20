@@ -88,7 +88,7 @@ def init_model_list() -> None:
     global available_models
     models = list_locals()
     if models is None:
-        available_models = []
+        available_models = None
     else:
         available_models = [member[0] for member in models]
 
