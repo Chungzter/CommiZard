@@ -181,9 +181,6 @@ def test_start_model(
 def test_print_available_models_correct(
     mock_init, mock_table, mock_list, available_models, monkeypatch
 ):
-    mock_init.side_effect = lambda: monkeypatch.setattr(
-        llm_providers, "available_models", available_models
-    )
     commands.print_available_models([])
 
     mock_list.assert_called_once()
