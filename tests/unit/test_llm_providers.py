@@ -142,8 +142,19 @@ def test_init_model_list(mock_list, monkeypatch):
         # http_request succeeds with models
         (
             False,
-            {"models": [{"name": "model1"}, {"name": "model2"}]},
-            ["model1", "model2"],
+            {
+                "models": [
+                    {
+                        "name": "model1",
+                        "details": {1: "bacon", "parameter_size": "5b"},
+                    },
+                    {
+                        "name": "model2",
+                        "details": {"happy": False, "parameter_size": "135m"},
+                    },
+                ]
+            },
+            [["model1", "5b"], ["model2", "135m"]],
             False,
         ),
         # http_request succeeds but no models
