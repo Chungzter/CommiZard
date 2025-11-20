@@ -86,10 +86,13 @@ def init_model_list() -> None:
     variable.
     """
     global available_models
-    available_models = [member[0] for member in list_locals()]
+    models = list_locals()
+    if models is None:
+        available_models = []
+    else:
+        available_models = [member[0] for member in models]
 
 
-# TODO: see issue #10
 def list_locals() -> list[list[str]] | None:
     """
     return a list of available local AI models
