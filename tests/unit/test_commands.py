@@ -167,20 +167,12 @@ def test_start_model(
         mock_select.assert_not_called()
 
 
-@pytest.mark.parametrize(
-    "available_models",
-    [
-        ([], ["-v"]),
-        (["gpt-1"], ["-q"]),
-        (["gpt-1", "gpt-2", "gpt-3"], ["--all-info"]),
-    ],
-)
 @patch("commizard.commands.llm_providers.list_locals")
 @patch("commizard.commands.output.print_table")
 @patch("commizard.commands.llm_providers.init_model_list")
-def test_print_available_models_correct(
-    mock_init, mock_table, mock_list, available_models, monkeypatch
-):
+def test_print_available_models_correct(mock_init, mock_table, mock_list):
+    mock_list.return_value = [["gpt-1", "3b"], ["gpt-2", "8b"]]
+
     commands.print_available_models([])
 
     mock_list.assert_called_once()
@@ -191,7 +183,7 @@ def test_print_available_models_correct(
 
 
 @pytest.mark.parametrize(
-    "available_models, expect_err",
+    "models, expect_err",
     [
         ([], False),
         (None, True),
@@ -200,15 +192,19 @@ def test_print_available_models_correct(
 @patch("commizard.commands.output.print_warning")
 @patch("commizard.commands.output.print_error")
 @patch("commizard.commands.output.print_table")
+@patch("commizard.commands.llm_providers.list_locals")
 @patch("commizard.commands.llm_providers.init_model_list")
 def test_print_available_models_error_behavior(
-    mock_init, mock_table, mock_err, mock_warn, available_models, expect_err
+    mock_init, mock_list, mock_table, mock_err, mock_warn, models, expect_err
 ):
-    mock_init.side_effect = lambda: setattr(
-        llm_providers, "available_models", available_models
-    )
+    mock_list.return_value = models
+
     commands.print_available_models([])
+
+    mock_init.assert_called_once()
+    mock_list.assert_called_once()
     mock_table.assert_not_called()
+
     if expect_err:
         mock_err.assert_called_once()
     else:
