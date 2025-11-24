@@ -86,11 +86,14 @@ def init_model_list() -> None:
     variable.
     """
     global available_models
-    available_models = list_locals()
+    models = list_locals()
+    if models is None:
+        available_models = None
+    else:
+        available_models = [member[0] for member in models]
 
 
-# TODO: see issue #10
-def list_locals() -> list[str] | None:
+def list_locals() -> list[list[str]] | None:
     """
     return a list of available local AI models
     """
@@ -99,7 +102,7 @@ def list_locals() -> list[str] | None:
     if r.is_error():
         return None
     r = r.response["models"]
-    return [model["name"] for model in r]
+    return [[model["name"], model["details"]["parameter_size"]] for model in r]
 
 
 def select_model(select_str: str) -> None:

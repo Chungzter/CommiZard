@@ -3,12 +3,14 @@ from __future__ import annotations
 import textwrap
 
 from rich.console import Console
+from rich.padding import Padding
+from rich.table import Table
 
 console: Console = Console()
 error_console: Console = Console()
 
 
-def init_console(color: bool):
+def init_console(color: bool) -> None:
     """
     Initialize Console instances.
 
@@ -49,6 +51,27 @@ def print_generated(message: str) -> None:
     prints generated message in blue color
     """
     console.print(f"[blue]{message}[/blue]")
+
+
+def print_table(
+    cols: list[str], rows: list[list[str]], title: str | None = None
+) -> None:
+    """
+    prints a table with given columns and rows.
+    Args:
+        cols: A list of column names.
+        rows: A list of rows to print.
+        title (optional): The title of the table.
+    """
+    table = Table(title=title)
+
+    for col in cols:
+        table.add_column(col, justify="center")
+
+    for row in rows:
+        table.add_row(*row)
+
+    console.print(Padding(table, 1), end="")
 
 
 # fixme: this function destroys bulletin board outputs. We shouldn't blindly

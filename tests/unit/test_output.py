@@ -1,15 +1,10 @@
 from unittest.mock import patch
 
 import pytest
+from rich.padding import Padding
+from rich.table import Table
 
-from commizard.output import (
-    init_console,
-    print_error,
-    print_generated,
-    print_success,
-    print_warning,
-    wrap_text,
-)
+from commizard import output
 
 
 @pytest.mark.parametrize(
@@ -21,32 +16,62 @@ from commizard.output import (
 )
 @patch("commizard.output.Console")
 def test_init_console(mock_console, arg):
-    init_console(arg)
+    output.init_console(arg)
     mock_console.assert_called()
 
 
 @patch("commizard.output.console.print")
 def test_print_success(mock_print):
-    print_success("All good")
+    output.print_success("All good")
     mock_print.assert_called_once_with("[green]All good[/green]")
 
 
 @patch("commizard.output.error_console.print")
 def test_print_error(mock_err):
-    print_error("Something went wrong")
+    output.print_error("Something went wrong")
     mock_err.assert_called_once_with("Error: Something went wrong")
 
 
 @patch("commizard.output.console.print")
 def test_print_warning(mock_print):
-    print_warning("Careful!")
+    output.print_warning("Careful!")
     mock_print.assert_called_once_with("[yellow]Warning: Careful![/yellow]")
 
 
 @patch("commizard.output.console.print")
 def test_print_generated(mock_print):
-    print_generated("Auto-created file")
+    output.print_generated("Auto-created file")
     mock_print.assert_called_once_with("[blue]Auto-created file[/blue]")
+
+
+@pytest.mark.parametrize(
+    "cols,rows,title",
+    [
+        (["Name", "Age"], [["Alice", "23"], ["Bob", "30"]], "People"),
+        (["X", "Y", "Z"], [["1", "2", "3"]], None),
+        ([], [], "Empty Table"),
+    ],
+)
+@patch("commizard.output.console.print")
+def test_print_table(mock_print, cols, rows, title):
+    output.print_table(cols, rows, title)
+
+    mock_print.assert_called_once()
+
+    args, _ = mock_print.call_args
+    printed_obj = args[0]
+    table = printed_obj.renderable
+
+    assert isinstance(printed_obj, Padding)
+    assert isinstance(table, Table)
+
+    if title:
+        assert table.title == title
+    else:
+        assert table.title is None
+
+    assert [c.header for c in table.columns] == cols
+    assert len(table.rows) == len(rows)
 
 
 @pytest.mark.parametrize(
@@ -71,5 +96,5 @@ def test_print_generated(mock_print):
     ],
 )
 def test_wrap_text(text, width, expected):
-    result = wrap_text(text, width=width)
+    result = output.wrap_text(text, width=width)
     assert result == expected
