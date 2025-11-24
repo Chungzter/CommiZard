@@ -130,8 +130,19 @@ def test_http_request(
 @patch("commizard.llm_providers.list_locals")
 def test_init_model_list(mock_list, monkeypatch):
     monkeypatch.setattr(llm, "available_models", None)
+
+    # first case: None returned by list_locals()
+    mock_list.return_value = None
     llm.init_model_list()
     mock_list.assert_called_once()
+    assert llm.available_models is None
+
+    # second case: correct output from list_locals()
+    monkeypatch.setattr(llm, "available_models", None)
+    mock_list.return_value = [["gpt-1", "10b"], ["gpt-2", "5b"]]
+    llm.init_model_list()
+    mock_list.assert_called()
+    assert llm.available_models == ["gpt-1", "gpt-2"]
 
 
 @pytest.mark.parametrize(
