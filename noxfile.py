@@ -78,7 +78,7 @@ def check(session):
         session.notify("lint", ["fix"])
     else:
         session.notify("lint")
-    session.notify("test")
+    session.notify("test", ["cov"])
 
 
 @nox.session(reuse_venv=True, venv_backend=venv_list)
@@ -90,9 +90,10 @@ def check_all(session):
     # don't format and just check if we're running this session with CI arg
     if "CI" in session.posargs:
         session.notify("format", ["check"])
+        session.notify("test")
     else:
         session.notify("format")
+        session.notify("test", ["cov"])
 
     session.notify("lint")
-    session.notify("test", ["cov"])
     session.notify("e2e_test")
