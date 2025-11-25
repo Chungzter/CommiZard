@@ -27,7 +27,7 @@ def lint(session):
 @nox.session(reuse_venv=True, venv_backend=venv_list)
 def test(session):
     """
-    run unit tests. returns coverage report if "cov" posarg is sent
+    run unit tests. Reports code coverage if "cov" argument is sent
     """
     if "cov" in session.posargs:
         print("coverage report")
