@@ -27,20 +27,23 @@ def lint(session):
 @nox.session(reuse_venv=True, venv_backend=venv_list)
 def test(session):
     """
-    run unit tests. Reports code coverage if "cov" argument is sent
+    run unit tests. Reports code coverage if "cov" argument is sent.
+    Generates coverage.xml if "xml" argument is sent.
     """
     if "cov" in session.posargs:
         print("coverage report")
-        args = (
+        args = [
             "pytest",
             "--cov=commizard",
-            "--cov-report=xml",
             "--cov-report=term-missing",
             "-q",
             "./tests/unit",
-        )
+        ]
+        if "xml" in session.posargs:
+            # Insert right after --cov=commizard (index 2)
+            args.insert(2, "--cov-report=xml")
     else:
-        args = ("pytest", "-q", "./tests/unit")
+        args = ["pytest", "-q", "./tests/unit"]
     session.run(*args, external=True)
 
 
@@ -69,16 +72,18 @@ def check(session):
     run formatter, linter and shallow tests
     """
 
-    # don't format and just check if we're running this session with CI arg
     if "CI" in session.posargs:
         session.notify("format", ["check"])
+        session.notify("test", ["cov", "xml"])
+
     else:
         session.notify("format")
+        session.notify("test")
+
     if "fix" in session.posargs:
         session.notify("lint", ["fix"])
     else:
         session.notify("lint")
-    session.notify("test", ["cov"])
 
 
 @nox.session(reuse_venv=True, venv_backend=venv_list)
@@ -87,7 +92,6 @@ def check_all(session):
     run all checks (used in CI. Use the check session for a faster check)
     """
 
-    # don't format and just check if we're running this session with CI arg
     if "CI" in session.posargs:
         session.notify("format", ["check"])
         session.notify("test")
