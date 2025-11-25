@@ -34,6 +34,7 @@ def test(session):
         args = (
             "pytest",
             "--cov=commizard",
+            "--cov-report=xml",
             "--cov-report=term-missing",
             "-q",
             "./tests/unit",
