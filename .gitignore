@@ -3,6 +3,7 @@ __pycache__/
 *.egg_info
 dist/
 .coverage
+coverage.xml
 .nox/
 
 ### IDEs / editors ###
