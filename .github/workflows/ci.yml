@@ -43,7 +43,7 @@ jobs:
           nox -s check -- CI
 
       - name: Upload coverage report to Coveralls
-        uses: coverallsapp/github-action@v2.3.6
+        uses: coverallsapp/github-action@v2.3.7
         with:
           format: cobertura
           file: coverage.xml
