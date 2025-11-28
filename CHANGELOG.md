@@ -8,6 +8,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-11-28
+
 ### Added
 
 - Added much needed metadata so the project gets categorized and recognized
@@ -141,7 +143,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - MIT open source license.
 - PyPI release: the package can now be installed with `pip install commizard`.
 
-[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.3.0...master
+[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.4.0...master
+
+[0.4.0]: https://github.com/Chungzter/CommiZard/compare/v0.3.0...v0.4.0
 
 [0.3.0]: https://github.com/Chungzter/CommiZard/compare/v0.2.0...v0.3.0
 
