@@ -24,6 +24,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   should be smaller, because they don't contain many unnecessary files.
 - The pypi publishing workflow now doesn't use the api key, and publishes to
   pypi via the newer and safer trusted publishing method.
+
+### Fixed
+
 - The license badge is now yellow and static because previous dynamic badge
   sometimes didn't show up because of the server not being available
 
