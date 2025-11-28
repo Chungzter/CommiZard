@@ -8,6 +8,25 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Added much needed metadata so the project gets categorized and recognized
+  better in pypi
+- Added Coveralls integration to report the test coverage history of the project
+- Added 3 new badges: a pypi version badge, a test coverage badge from
+  coveralls, and a CI status badge from ci.yml
+
+### Changed
+
+- the `list` command now prints a table of available models, with one column the
+  model's name, and the other one it's parameter size
+- excluded some files from the final package: Now the hatchling built packages
+  should be smaller, because they don't contain many unnecessary files.
+- The pypi publishing workflow now doesn't use the api key, and publishes to
+  pypi via the newer and safer trusted publishing method.
+- The license badge is now yellow and static because previous dynamic badge
+  sometimes didn't show up because of the server not being available
+
 ## [0.3.0] - 2025-11-07
 
 ### Added
