@@ -8,6 +8,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Text wrapper now respects manual newlines from AI input instead of merging
+  lines.
+
 ## [0.4.0] - 2025-11-28
 
 ### Added
