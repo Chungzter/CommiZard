@@ -150,7 +150,12 @@ def generate_message(opts: list[str]) -> None:
         output.print_error(res)
         return
 
-    wrapped_res = output.wrap_text(res, 72)
+    # separate the title and the body and wrap them
+    res_paragraphs = res.split("\n\n", 1)
+    title = output.wrap_text(res_paragraphs[0], 50)
+    body = output.wrap_text(res_paragraphs[1], 72)
+
+    wrapped_res = title + "\n\n" + body
     llm_providers.gen_message = wrapped_res
     output.print_generated(wrapped_res)
 
