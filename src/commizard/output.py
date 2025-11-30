@@ -74,8 +74,6 @@ def print_table(
     console.print(Padding(table, 1), end="")
 
 
-# fixme: this function destroys bulletin board outputs. We shouldn't blindly
-#        wrap these lists into each-other.
 def wrap_text(text: str, width: int = 70) -> str:
     """
     Wrap text into a specified width, preserving line breaks.
@@ -88,4 +86,4 @@ def wrap_text(text: str, width: int = 70) -> str:
         for line in lines
     ]
     # preserve the last \n if the texts contains it.
-    return '\n'.join(wrapped_lines) + ("\n" if text.endswith("\n") else "")
+    return "\n".join(wrapped_lines) + ("\n" if text.endswith("\n") else "")
