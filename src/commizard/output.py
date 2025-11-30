@@ -80,11 +80,11 @@ def wrap_text(text: str, width: int = 70) -> str:
     """
     Wrap text into paragraphs of specified width, preserving paragraph breaks.
     """
-    paragraphs = text.split("\n\n")
-    wrapped_paragraphs = [
+    lines = text.splitlines()
+    wrapped_lines = [
         textwrap.fill(
-            p, width=width, break_long_words=False, break_on_hyphens=False
+            line, width=width, break_long_words=False, break_on_hyphens=False
         )
-        for p in paragraphs
+        for line in lines
     ]
-    return "\n\n".join(wrapped_paragraphs)
+    return "\n".join(wrapped_lines)
