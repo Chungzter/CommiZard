@@ -78,7 +78,7 @@ def print_table(
 #        wrap these lists into each-other.
 def wrap_text(text: str, width: int = 70) -> str:
     """
-    Wrap text into paragraphs of specified width, preserving paragraph breaks.
+    Wrap text into a specified width, preserving line breaks.
     """
     lines = text.splitlines()
     wrapped_lines = [
@@ -87,4 +87,5 @@ def wrap_text(text: str, width: int = 70) -> str:
         )
         for line in lines
     ]
-    return "\n".join(wrapped_lines)
+    # preserve the last \n if the texts contains it.
+    return '\n'.join(wrapped_lines) + ("\n" if text.endswith("\n") else "")
