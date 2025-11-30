@@ -7,7 +7,7 @@ from rich.padding import Padding
 from rich.table import Table
 
 console: Console = Console()
-error_console: Console = Console()
+error_console: Console = Console(stderr=True)
 
 
 def init_console(color: bool) -> None:
