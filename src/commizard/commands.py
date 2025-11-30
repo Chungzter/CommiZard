@@ -153,9 +153,13 @@ def generate_message(opts: list[str]) -> None:
     # separate the title and the body and wrap them
     res_paragraphs = res.split("\n\n", 1)
     title = output.wrap_text(res_paragraphs[0], 50)
-    body = output.wrap_text(res_paragraphs[1], 72)
+    body = (
+        output.wrap_text(res_paragraphs[1], 72)
+        if len(res_paragraphs) > 1
+        else ""
+    )
 
-    wrapped_res = title + "\n\n" + body
+    wrapped_res = title + ("\n\n" + body if len(res_paragraphs) > 1 else "")
     llm_providers.gen_message = wrapped_res
     output.print_generated(wrapped_res)
 
