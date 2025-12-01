@@ -93,6 +93,16 @@ def test_print_table(mock_print, cols, rows, title):
         ("\n\nHello world\n\n", 5, "\n\nHello\nworld\n\n"),
         ("Extraordinarilylongword", 5, "Extraordinarilylongword"),
         ("", 10, ""),
+        (
+            "- a bulletin board\n- that shouldn't\n- break.",
+            20,
+            "- a bulletin board\n- that shouldn't\n- break.",
+        ),
+        (
+            "- a bulletin board that\n- should wrap properly",
+            15,
+            "- a bulletin\nboard that\n- should wrap\nproperly",
+        ),
     ],
 )
 def test_wrap_text(text, width, expected):

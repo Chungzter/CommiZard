@@ -8,6 +8,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- the commit title now wraps at 50 characters instead of 72 which is the
+  standard width of a commit's title
+
+### Fixed
+
+- Text wrapper now respects manual newlines from AI input instead of merging
+  lines.
+
 ## [0.4.0] - 2025-11-28
 
 ### Added

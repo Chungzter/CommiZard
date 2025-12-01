@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import pytest
 
@@ -247,7 +247,7 @@ def test_generate_message_success(
     mock_gen, mock_diff, mock_output, mock_wrap, monkeypatch
 ):
     mock_diff.return_value = "some diff"
-    mock_gen.return_value = (0, "The generated commit message")
+    mock_gen.return_value = (0, "The generated commit's title\n\nThe body")
     monkeypatch.setattr(commands.llm_providers, "generation_prompt", "PROMPT:")
     monkeypatch.setattr(commands.llm_providers, "gen_message", None)
     mock_wrap.side_effect = lambda text, width: f"WRAPPED({text})"
@@ -255,9 +255,16 @@ def test_generate_message_success(
     commands.generate_message(["--dummy"])
 
     mock_gen.assert_called_once_with("PROMPT:some diff")
-    mock_wrap.assert_called_once_with("The generated commit message", 72)
-    mock_output.assert_called_once_with("WRAPPED(The generated commit message)")
-    assert llm_providers.gen_message == "WRAPPED(The generated commit message)"
+    mock_wrap.assert_has_calls(
+        [call("The generated commit's title", 50), call("The body", 72)]
+    )
+    mock_output.assert_called_once_with(
+        "WRAPPED(The generated commit's title)\n\nWRAPPED(The body)"
+    )
+    assert (
+        llm_providers.gen_message
+        == "WRAPPED(The generated commit's title)\n\nWRAPPED(The body)"
+    )
 
 
 @pytest.mark.parametrize(

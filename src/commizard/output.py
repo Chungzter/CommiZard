@@ -7,7 +7,7 @@ from rich.padding import Padding
 from rich.table import Table
 
 console: Console = Console()
-error_console: Console = Console()
+error_console: Console = Console(stderr=True)
 
 
 def init_console(color: bool) -> None:
@@ -74,17 +74,16 @@ def print_table(
     console.print(Padding(table, 1), end="")
 
 
-# fixme: this function destroys bulletin board outputs. We shouldn't blindly
-#        wrap these lists into each-other.
 def wrap_text(text: str, width: int = 70) -> str:
     """
-    Wrap text into paragraphs of specified width, preserving paragraph breaks.
+    Wrap text into a specified width, preserving line breaks.
     """
-    paragraphs = text.split("\n\n")
-    wrapped_paragraphs = [
+    lines = text.splitlines()
+    wrapped_lines = [
         textwrap.fill(
-            p, width=width, break_long_words=False, break_on_hyphens=False
+            line, width=width, break_long_words=False, break_on_hyphens=False
         )
-        for p in paragraphs
+        for line in lines
     ]
-    return "\n\n".join(wrapped_paragraphs)
+    # preserve the last \n if the texts contains it.
+    return "\n".join(wrapped_lines) + ("\n" if text.endswith("\n") else "")
