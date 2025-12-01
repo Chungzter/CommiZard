@@ -136,7 +136,7 @@ def request_load_model(model_name: str) -> HttpResponse:
     Returns:
         a HttpResponse object
     """
-    payload = {"model": selected_model}
+    payload = {"model": model_name}
     url = config.gen_request_url()
     return http_request("POST", url, json=payload)
 
