@@ -113,7 +113,11 @@ def start_model(opts: list[str]) -> None:
     ):
         output.print_error(f"{model_name} Not found.")
         return
-    llm_providers.select_model(model_name)
+    ret_stat, msg = llm_providers.select_model(model_name)
+    if ret_stat == 0:
+        output.print_success(msg)
+    else:
+        output.print_error(msg)
 
 
 def print_available_models(opts: list[str]) -> None:
