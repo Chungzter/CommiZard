@@ -116,23 +116,19 @@ def select_model(select_str: str) -> None:
         output.print_success(f"{selected_model} loaded.")
 
 
-def load_model(model_name: str) -> dict:
+def load_model(model_name: str) -> HttpResponse:
     """
-    Load the local model into RAM
+    Send a request to load the local model into RAM
     Args:
         model_name: name of the model to load
 
     Returns:
-        a dict of the POST request
+        a HttpResponse object
     """
     print("Loading local model...")
     payload = {"model": selected_model}
     url = config.gen_request_url()
-    out = http_request("POST", url, json=payload)
-    if out.is_error():
-        output.print_error(f"Failed to load {model_name}. Is ollama running?")
-        return {}
-    return out.response
+    return http_request("POST", url, json=payload)
 
 
 def unload_model() -> None:
