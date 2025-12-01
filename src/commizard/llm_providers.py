@@ -113,7 +113,7 @@ def select_model(select_str: str) -> tuple[int, str]:
         model was selected, 1 if there were an error. The response is the result
         message
     """
-    load_res = load_model(select_str)
+    load_res = request_load_model(select_str)
     if load_res.is_error():
         return 1, f"failed to load {select_str}: {load_res.err_message()}"
     elif load_res.return_code != 200:
@@ -127,7 +127,7 @@ def select_model(select_str: str) -> tuple[int, str]:
                    " Please report this issue.")
 
 
-def load_model(model_name: str) -> HttpResponse:
+def request_load_model(model_name: str) -> HttpResponse:
     """
     Send a request to load the local model into RAM
     Args:
