@@ -202,7 +202,7 @@ def test_list_locals(
 )
 @patch("commizard.llm_providers.output.print_error")
 @patch("commizard.llm_providers.http_request")
-def test_load_model(
+def test_request_load_model(
     mock_http_request,
     mock_print_error,
     monkeypatch,
@@ -216,7 +216,7 @@ def test_load_model(
     fake_response.response = response
     mock_http_request.return_value = fake_response
     monkeypatch.setattr(llm, "selected_model", "patched_model")
-    result = llm.load_model("test_model")
+    result = llm.request_load_model("test_model")
 
     mock_http_request.assert_called_once()
     if expect_error:
@@ -378,7 +378,7 @@ def test_generate_none_selected(mock_http_request, monkeypatch):
         ("modelC", {}, False),
     ],
 )
-@patch("commizard.llm_providers.load_model")
+@patch("commizard.llm_providers.request_load_model")
 @patch("commizard.llm_providers.output.print_success")
 def test_select_model(
     mock_print, mock_load, select_str, load_val, should_print, monkeypatch
