@@ -123,8 +123,11 @@ def select_model(select_str: str) -> tuple[int, str]:
         selected_model = select_str
         return 0, f"{select_str} loaded."
     else:
-        return (1, "There was an unknown problem loading the model.\n"
-                   " Please report this issue.")
+        return (
+            1,
+            "There was an unknown problem loading the model.\n"
+            " Please report this issue.",
+        )
 
 
 def request_load_model(model_name: str) -> HttpResponse:
