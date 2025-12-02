@@ -117,7 +117,7 @@ def select_model(select_str: str) -> tuple[int, str]:
     if load_res.is_error():
         return 1, f"failed to load {select_str}: {load_res.err_message()}"
     elif load_res.return_code != 200:
-        return 1, f"{get_error_message(load_res.return_code)}"
+        return 1, get_error_message(load_res.return_code)
     elif load_res.response.get("done_reason") == "load":
         global selected_model
         selected_model = select_str
