@@ -47,11 +47,11 @@ def print_help(opts: list[str]) -> None:
         "commit": (
             "Usage: commit\n\nCommits using the last generated message.\n"
         ),
-        "list": ("Usage: list\n\nLists all installed models.\n"),
-        "cls": ("Usage: cls | clear\n\nClears the terminal screen.\n"),
-        "clear": ("Usage: cls | clear\n\nClears the terminal screen.\n"),
-        "exit": ("Usage: exit | quit\n\nExits the program.\n"),
-        "quit": ("Usage: exit | quit\n\nExits the program.\n"),
+        "list": "Usage: list\n\nLists all installed models.\n",
+        "cls": "Usage: cls | clear\n\nClears the terminal screen.\n",
+        "clear": "Usage: cls | clear\n\nClears the terminal screen.\n",
+        "exit": "Usage: exit | quit\n\nExits the program.\n",
+        "quit": "Usage: exit | quit\n\nExits the program.\n",
     }
     if opts == []:
         help_msg = (
