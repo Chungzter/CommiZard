@@ -121,19 +121,23 @@ def test_copy_command(
 
 
 @pytest.mark.parametrize(
-    "available_models, opts, expect_init, expect_error, expect_select",
+    "available_models, opts, expect_init, expect_error, expect_select, sel_ret",
     [
         # init_model_list called
-        (None, ["grok"], True, False, True),
+        (None, ["grok"], True, False, True, (0, "test")),
         # print_error called
-        (["gpt-1", "gpt-2"], ["gpt-3"], False, True, False),
+        (["gpt-1", "gpt-2"], ["gpt-3"], False, True, False, (0, "test")),
         # select_model called
-        (["gpt-1", "gpt-2"], ["gpt-2"], False, False, True),
+        (["gpt-1", "gpt-2"], ["gpt-2"], False, False, True, (0, "test")),
         # incorrect user input
-        (None, [], True, True, False),
-        (["gpt-1", "gpt-2"], [], False, True, False),
+        (None, [], True, True, False, (1, "test")),
+        (["gpt-1", "gpt-2"], [], False, True, False, (0, "test")),
+        # error from select_model
+        (["gpt-1", "gpt-2"], ["gpt-2"], False, True, True, (1, "test")),
     ],
 )
+@patch("builtins.print")
+@patch("commizard.llm_providers.output.print_success")
 @patch("commizard.llm_providers.output.print_error")
 @patch("commizard.llm_providers.select_model")
 @patch("commizard.llm_providers.init_model_list")
@@ -141,12 +145,15 @@ def test_start_model(
     mock_init,
     mock_select,
     mock_error,
+    mock_success,
+    mock_print,
     monkeypatch,
     available_models,
     opts,
     expect_init,
     expect_error,
     expect_select,
+    sel_ret,
 ):
     # set available_models dynamically
     monkeypatch.setattr(llm_providers, "available_models", available_models)
@@ -156,6 +163,7 @@ def test_start_model(
         monkeypatch.setattr(llm_providers, "available_models", ["grok", "GPT"])
 
     mock_init.side_effect = fake_init
+    mock_select.return_value = sel_ret
     commands.start_model(opts)
 
     assert mock_init.called == expect_init
@@ -163,8 +171,15 @@ def test_start_model(
 
     if expect_select:
         mock_select.assert_called_once_with(opts[0])
+        mock_print.assert_called_once()
+        if sel_ret[0] == 0:
+            mock_success.asssert_called_once_with(sel_ret[1])
+        else:
+            mock_success.assert_not_called()
+            mock_error.assert_called_with(sel_ret[1])
     else:
         mock_select.assert_not_called()
+        mock_print.assert_not_called()
 
 
 @patch("commizard.commands.llm_providers.list_locals")
