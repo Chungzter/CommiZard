@@ -141,7 +141,7 @@ def request_load_model(model_name: str) -> HttpResponse:
     """
     payload = {"model": model_name}
     url = config.gen_request_url()
-    return http_request("POST", url, json=payload)
+    return http_request("POST", url, json=payload, timeout=(0.3,5))
 
 
 def unload_model() -> None:
