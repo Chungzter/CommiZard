@@ -130,7 +130,7 @@ def test_copy_command(
         # select_model called
         (["gpt-1", "gpt-2"], ["gpt-2"], False, False, True, (0, "test")),
         # incorrect user input
-        (None, [], True, True, False, (1, "test")),
+        (None, [], False, True, False, (1, "test")),
         (["gpt-1", "gpt-2"], [], False, True, False, (0, "test")),
         # error from select_model
         (["gpt-1", "gpt-2"], ["gpt-2"], False, True, True, (1, "test")),

@@ -340,7 +340,7 @@ def test_generate(
 def test_generate_none_selected(mock_http_request, monkeypatch):
     monkeypatch.setattr(llm, "selected_model", None)
     err_str = (
-        "No model selected. You must use the start command to specify"
+        "No model selected. You must use the start command to specify "
         "which model to use before generating.\nExample: start model_name"
     )
     res = llm.generate("Test prompt")
