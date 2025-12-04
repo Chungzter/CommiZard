@@ -241,7 +241,7 @@ def get_error_message(status_code: int) -> str:
         )
 
 
-# TODO: see issues #11 and #15
+# TODO: see issue #15
 def generate(prompt: str) -> tuple[int, str]:
     """
     generates a response by prompting the selected_model.
