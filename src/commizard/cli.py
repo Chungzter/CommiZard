@@ -64,21 +64,21 @@ def main() -> int:
         ai_ok = fut_ai.result()
         worktree_ok = fut_worktree.result()
 
-    output.init_console(config.USE_COLOR)
-
     if not git_ok:
         output.print_error("git not installed")
         return 1
-
-    if not ai_ok:
-        output.print_warning("local AI not available")
 
     if not worktree_ok:
         output.print_error("not inside work tree")
         return 1
 
+    output.init_console(config.USE_COLOR)
+
     if config.SHOW_BANNER:
         start.print_welcome(config.USE_COLOR)
+
+    if not ai_ok:
+        output.print_warning("local AI not available")
 
     try:
         while True:

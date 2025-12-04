@@ -47,11 +47,11 @@ def print_help(opts: list[str]) -> None:
         "commit": (
             "Usage: commit\n\nCommits using the last generated message.\n"
         ),
-        "list": ("Usage: list\n\nLists all installed models.\n"),
-        "cls": ("Usage: cls | clear\n\nClears the terminal screen.\n"),
-        "clear": ("Usage: cls | clear\n\nClears the terminal screen.\n"),
-        "exit": ("Usage: exit | quit\n\nExits the program.\n"),
-        "quit": ("Usage: exit | quit\n\nExits the program.\n"),
+        "list": "Usage: list\n\nLists all installed models.\n",
+        "cls": "Usage: cls | clear\n\nClears the terminal screen.\n",
+        "clear": "Usage: cls | clear\n\nClears the terminal screen.\n",
+        "exit": "Usage: exit | quit\n\nExits the program.\n",
+        "quit": "Usage: exit | quit\n\nExits the program.\n",
     }
     if opts == []:
         help_msg = (
@@ -113,7 +113,12 @@ def start_model(opts: list[str]) -> None:
     ):
         output.print_error(f"{model_name} Not found.")
         return
-    llm_providers.select_model(model_name)
+    print("Loading model...")
+    ret_stat, msg = llm_providers.select_model(model_name)
+    if ret_stat == 0:
+        output.print_success(msg)
+    else:
+        output.print_error(msg)
 
 
 def print_available_models(opts: list[str]) -> None:

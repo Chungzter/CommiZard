@@ -4,6 +4,7 @@ import pytest
 import requests
 
 from commizard import llm_providers as llm
+from commizard.llm_providers import HttpResponse
 
 
 @pytest.mark.parametrize(
@@ -193,39 +194,16 @@ def test_list_locals(
     mock_http_request.assert_called_once()
 
 
-@pytest.mark.parametrize(
-    "is_error, response, expect_error, expected_result",
-    [
-        (True, None, True, {}),
-        (False, {"done_reason": "load"}, False, {"done_reason": "load"}),
-    ],
-)
-@patch("commizard.llm_providers.output.print_error")
+@patch("commizard.llm_providers.config.gen_request_url")
 @patch("commizard.llm_providers.http_request")
-def test_load_model(
-    mock_http_request,
-    mock_print_error,
-    monkeypatch,
-    is_error,
-    response,
-    expect_error,
-    expected_result,
-):
-    fake_response = Mock()
-    fake_response.is_error.return_value = is_error
-    fake_response.response = response
-    mock_http_request.return_value = fake_response
-    monkeypatch.setattr(llm, "selected_model", "patched_model")
-    result = llm.load_model("test_model")
-
-    mock_http_request.assert_called_once()
-    if expect_error:
-        mock_print_error.assert_called_once_with(
-            "Failed to load test_model. Is ollama running?"
-        )
-    else:
-        mock_print_error.assert_not_called()
-    assert result == expected_result
+def test_request_load_model(mock_http_request, mock_url, monkeypatch):
+    retval = HttpResponse("response", 420)
+    mock_url.return_value = "localhost"
+    mock_http_request.return_value = retval
+    assert llm.request_load_model("gpt") == retval
+    mock_http_request.assert_called_once_with(
+        "POST", "localhost", json={"model": "gpt"}
+    )
 
 
 @pytest.mark.parametrize(
@@ -371,27 +349,51 @@ def test_generate_none_selected(mock_http_request, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "select_str, load_val, should_print",
+    "model_name, load_res, expected_return, selected_model_result",
     [
-        ("modelA", {"done_reason": "load"}, True),
-        ("modelB", {"done_reason": "error"}, False),
-        ("modelC", {}, False),
+        (
+            "gpt",
+            HttpResponse("test", -1),
+            (
+                1,
+                f"failed to load gpt: {HttpResponse(str(1), -1).err_message()}",
+            ),
+            None,
+        ),
+        (
+            "llama",
+            HttpResponse("404", 404),
+            (1, llm.get_error_message(404)),
+            None,
+        ),
+        (
+            "smollm",
+            HttpResponse({"done_reason": "load"}, 200),
+            (0, "smollm loaded."),
+            "smollm",
+        ),
+        (
+            "fara",
+            HttpResponse({"done_reason": "spooky error"}, 200),
+            (
+                1,
+                "There was an unknown problem loading the model.\n"
+                " Please report this issue.",
+            ),
+            None,
+        ),
     ],
 )
-@patch("commizard.llm_providers.load_model")
-@patch("commizard.llm_providers.output.print_success")
+@patch("commizard.llm_providers.request_load_model")
 def test_select_model(
-    mock_print, mock_load, select_str, load_val, should_print, monkeypatch
+    mock_load,
+    model_name,
+    load_res,
+    expected_return,
+    selected_model_result,
+    monkeypatch,
 ):
     monkeypatch.setattr(llm, "selected_model", None)
-
-    mock_load.return_value = load_val
-
-    llm.select_model(select_str)
-    assert llm.selected_model == select_str
-    mock_load.assert_called_once_with(select_str)
-
-    if should_print:
-        mock_print.assert_called_once_with(f"{llm.selected_model} loaded.")
-    else:
-        mock_print.assert_not_called()
+    mock_load.return_value = load_res
+    assert llm.select_model(model_name) == expected_return
+    assert llm.selected_model == selected_model_result

@@ -105,34 +105,43 @@ def list_locals() -> list[list[str]] | None:
     return [[model["name"], model["details"]["parameter_size"]] for model in r]
 
 
-def select_model(select_str: str) -> None:
+def select_model(select_str: str) -> tuple[int, str]:
     """
-    Prepare the local model for use
+    Select the local model for use
+    Returns:
+        a tuple of the return code and the response. The return code is 0 if the
+        model was selected, 1 if there were an error. The response is the result
+        message
     """
-    global selected_model
-    selected_model = select_str
-    load_res = load_model(selected_model)
-    if load_res.get("done_reason") == "load":
-        output.print_success(f"{selected_model} loaded.")
+    load_res = request_load_model(select_str)
+    if load_res.is_error():
+        return 1, f"failed to load {select_str}: {load_res.err_message()}"
+    elif load_res.return_code != 200:
+        return 1, get_error_message(load_res.return_code)
+    elif load_res.response.get("done_reason") == "load":
+        global selected_model
+        selected_model = select_str
+        return 0, f"{select_str} loaded."
+    else:
+        return (
+            1,
+            "There was an unknown problem loading the model.\n"
+            " Please report this issue.",
+        )
 
 
-def load_model(model_name: str) -> dict:
+def request_load_model(model_name: str) -> HttpResponse:
     """
-    Load the local model into RAM
+    Send a request to load the local model into RAM
     Args:
         model_name: name of the model to load
 
     Returns:
-        a dict of the POST request
+        a HttpResponse object
     """
-    print("Loading local model...")
-    payload = {"model": selected_model}
+    payload = {"model": model_name}
     url = config.gen_request_url()
-    out = http_request("POST", url, json=payload)
-    if out.is_error():
-        output.print_error(f"Failed to load {model_name}. Is ollama running?")
-        return {}
-    return out.response
+    return http_request("POST", url, json=payload)
 
 
 def unload_model() -> None:
