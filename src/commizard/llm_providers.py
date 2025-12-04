@@ -255,7 +255,7 @@ def generate(prompt: str) -> tuple[int, str]:
     url = config.gen_request_url()
     if selected_model is None:
         return 1, (
-            "No model selected. You must use the start command to specify"
+            "No model selected. You must use the start command to specify "
             "which model to use before generating.\nExample: start model_name"
         )
     payload = {"model": selected_model, "prompt": prompt, "stream": False}
