@@ -202,7 +202,7 @@ def test_request_load_model(mock_http_request, mock_url, monkeypatch):
     mock_http_request.return_value = retval
     assert llm.request_load_model("gpt") == retval
     mock_http_request.assert_called_once_with(
-        "POST", "localhost", json={"model": "gpt"}
+        "POST", "localhost", json={"model": "gpt"}, timeout=(0.3, 5)
     )
 
 
