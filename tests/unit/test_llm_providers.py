@@ -202,7 +202,7 @@ def test_request_load_model(mock_http_request, mock_url, monkeypatch):
     mock_http_request.return_value = retval
     assert llm.request_load_model("gpt") == retval
     mock_http_request.assert_called_once_with(
-        "POST", "localhost", json={"model": "gpt"}
+        "POST", "localhost", json={"model": "gpt"}, timeout=(0.3, 5)
     )
 
 
@@ -340,7 +340,7 @@ def test_generate(
 def test_generate_none_selected(mock_http_request, monkeypatch):
     monkeypatch.setattr(llm, "selected_model", None)
     err_str = (
-        "No model selected. You must use the start command to specify"
+        "No model selected. You must use the start command to specify "
         "which model to use before generating.\nExample: start model_name"
     )
     res = llm.generate("Test prompt")
