@@ -51,17 +51,12 @@ class HttpResponse:
 
 def http_request(method: str, url: str, **kwargs) -> HttpResponse:
     resp = None
+    method = method.upper()  # All methods are upper case
     try:
-        if method.upper() == "GET":
-            r = requests.get(url, **kwargs)  # noqa: S113
-        elif method.upper() == "POST":
-            r = requests.post(url, **kwargs)  # noqa: S113
-
+        if method in ("GET", "POST", "PUT", "PATCH", "DELETE"):
+            r = requests.request(method, url, **kwargs)  # noqa: S113
         else:
-            if method.upper() in ("PUT", "DELETE", "PATCH"):
-                raise NotImplementedError(f"{method} is not implemented.")
-            else:
-                raise ValueError(f"{method} is not a valid method.")
+            raise ValueError(f"{method} is not a valid method.")
         try:
             resp = r.json()
         except requests.exceptions.JSONDecodeError:
@@ -141,7 +136,7 @@ def request_load_model(model_name: str) -> HttpResponse:
     """
     payload = {"model": model_name}
     url = config.gen_request_url()
-    return http_request("POST", url, json=payload, timeout=(0.3, 5))
+    return http_request("POST", url, json=payload, timeout=(0.3, 600))
 
 
 def unload_model() -> None:
