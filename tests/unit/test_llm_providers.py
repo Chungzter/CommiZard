@@ -47,7 +47,7 @@ def test_http_response(
             None,
         ),
         (
-            "GET",
+            "get",
             {
                 "json": requests.exceptions.JSONDecodeError("err", "doc", 0),
                 "text": "plain text",
@@ -67,7 +67,7 @@ def test_http_response(
             None,
         ),
         (
-            "GET",
+            "PUT",
             {"json": {"key": "val"}, "status": 503},
             None,
             {"key": "val"},
@@ -81,15 +81,12 @@ def test_http_response(
         ("GET", None, requests.Timeout, None, -4, None),
         ("GET", None, requests.RequestException, None, -5, None),
         # --- Invalid methods ---
-        ("PUT", None, None, None, None, NotImplementedError),
-        ("FOO", None, None, None, None, ValueError),
+        ("FOO", None, ValueError, None, None, ValueError),
     ],
 )
-@patch("requests.get")
-@patch("requests.post")
+@patch("commizard.llm_providers.requests.request")
 def test_http_request(
-    mock_post,
-    mock_get,
+    mock_request,
     method,
     return_value,
     side_effect,
@@ -97,26 +94,18 @@ def test_http_request(
     expected_code,
     expected_exception,
 ):
-    # pick which mock to configure
-    mock_target = None
-    if method.upper() == "GET":
-        mock_target = mock_get
-    elif method.upper() == "POST":
-        mock_target = mock_post
-
     # setup mock_target based on the return_value dict
-    if mock_target:
-        if side_effect:
-            mock_target.side_effect = side_effect
+    if side_effect:
+        mock_request.side_effect = side_effect
+    else:
+        mock_resp = Mock()
+        mock_resp.status_code = return_value["status"]
+        if isinstance(return_value.get("json"), Exception):
+            mock_resp.json.side_effect = return_value["json"]
         else:
-            mock_resp = Mock()
-            mock_resp.status_code = return_value["status"]
-            if isinstance(return_value.get("json"), Exception):
-                mock_resp.json.side_effect = return_value["json"]
-            else:
-                mock_resp.json.return_value = return_value.get("json")
-            mock_resp.text = return_value.get("text")
-            mock_target.return_value = mock_resp
+            mock_resp.json.return_value = return_value.get("json")
+        mock_resp.text = return_value.get("text")
+        mock_request.return_value = mock_resp
 
     if expected_exception:
         with pytest.raises(expected_exception):

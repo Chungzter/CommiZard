@@ -54,7 +54,7 @@ def http_request(method: str, url: str, **kwargs) -> HttpResponse:
     method = method.upper()  # All methods are upper case
     try:
         if method in ("GET", "POST", "PUT", "PATCH", "DELETE"):
-            r = requests.request(method, url, **kwargs) # noqa: S113
+            r = requests.request(method, url, **kwargs)  # noqa: S113
         else:
             raise ValueError(f"{method} is not a valid method.")
         try:
