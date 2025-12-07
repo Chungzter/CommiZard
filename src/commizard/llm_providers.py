@@ -141,7 +141,7 @@ def request_load_model(model_name: str) -> HttpResponse:
     """
     payload = {"model": model_name}
     url = config.gen_request_url()
-    return http_request("POST", url, json=payload)
+    return http_request("POST", url, json=payload, timeout=(0.3, 5))
 
 
 def unload_model() -> None:
@@ -241,7 +241,7 @@ def get_error_message(status_code: int) -> str:
         )
 
 
-# TODO: see issues #11 and #15
+# TODO: see issue #15
 def generate(prompt: str) -> tuple[int, str]:
     """
     generates a response by prompting the selected_model.
@@ -255,7 +255,7 @@ def generate(prompt: str) -> tuple[int, str]:
     url = config.gen_request_url()
     if selected_model is None:
         return 1, (
-            "No model selected. You must use the start command to specify"
+            "No model selected. You must use the start command to specify "
             "which model to use before generating.\nExample: start model_name"
         )
     payload = {"model": selected_model, "prompt": prompt, "stream": False}

@@ -14,8 +14,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   standard width of a commit's title
 - Reordered possible Warning about the local AI not being available to print
   after the banner
-- Model loading routines (aka the backend behind the `start` command) was
+- Model loading routines (aka the backend behind the `start` command) were
   rewritten for better control flow and cleaner modularity
+- Reduced time out for starting models. The fails now happen around 4 times
+  faster
 
 ### Fixed
 

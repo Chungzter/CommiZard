@@ -97,12 +97,12 @@ def start_model(opts: list[str]) -> None:
     Get the model (either local or online) ready for generation based on the
     options passed.
     """
-    if llm_providers.available_models is None:
-        llm_providers.init_model_list()
-
     if opts == []:
         output.print_error("Please specify a model.")
         return
+
+    if llm_providers.available_models is None:
+        llm_providers.init_model_list()
 
     # TODO: see issue #42
     model_name = opts[0]
