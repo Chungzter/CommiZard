@@ -8,6 +8,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.1] - 2025-12-11
+
 ### Changed
 
 - The commit title now wraps at 50 characters instead of 72 which is the
@@ -159,7 +161,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - MIT open source license.
 - PyPI release: the package can now be installed with `pip install commizard`.
 
-[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.4.0...master
+[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.4.1...master
+
+[0.4.0]: https://github.com/Chungzter/CommiZard/compare/v0.4.0...v0.4.1
 
 [0.4.0]: https://github.com/Chungzter/CommiZard/compare/v0.3.0...v0.4.0
 
