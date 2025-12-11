@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import requests
 
 from . import config, output
@@ -73,6 +75,16 @@ def http_request(method: str, url: str, **kwargs) -> HttpResponse:
     except requests.RequestException:
         ret_val = -5
     return HttpResponse(resp, ret_val)
+
+
+def stream_request(prompt: str):
+    payload = {"model": selected_model, "prompt": prompt, "stream": True}
+    r = requests.post(
+        config.gen_request_url(), json=payload, stream=True, timeout=(0.5, 5)
+    )
+    r.encoding = "utf-8"
+    for i in r.iter_lines(decode_unicode=True):
+        yield json.loads(i)
 
 
 def init_model_list() -> None:
