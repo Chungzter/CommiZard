@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-
 import requests
 
 from . import config, output
@@ -77,14 +76,21 @@ def http_request(method: str, url: str, **kwargs) -> HttpResponse:
     return HttpResponse(resp, ret_val)
 
 
-def stream_request(prompt: str):
+def stream_request(prompt: str, ):
+    """
+    generate result from the model.
+    Returns:
+        a Response object
+    """
     payload = {"model": selected_model, "prompt": prompt, "stream": True}
-    r = requests.post(
-        config.gen_request_url(), json=payload, stream=True, timeout=(0.5, 5)
-    )
-    r.encoding = "utf-8"
-    for i in r.iter_lines(decode_unicode=True):
-        yield json.loads(i)
+    try:
+        r = requests.post(config.gen_request_url(), json=payload, stream=True, timeout=(0.5,5))
+        if r.encoding is None:
+            r.encoding = "utf-8"
+        for line in r.iter_lines(decode_unicode=True):
+            yield (False , json.loads(line)["response"])
+    except:
+        return (True, "an error occurred")
 
 
 def init_model_list() -> None:
