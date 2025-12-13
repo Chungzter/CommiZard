@@ -76,21 +76,39 @@ def http_request(method: str, url: str, **kwargs) -> HttpResponse:
     return HttpResponse(resp, ret_val)
 
 
-def stream_request(prompt: str, ):
+class StreamRequest:
     """
-    generate result from the model.
-    Returns:
-        a Response object
+    Streams an HTTP request.
+    This class is intended to be used as an iterator.
+
+    Example usage:
+        for l in StreamRequest("GET", "https://example.com"):
+            print(l)
     """
-    payload = {"model": selected_model, "prompt": prompt, "stream": True}
-    try:
-        r = requests.post(config.gen_request_url(), json=payload, stream=True, timeout=(0.5,5))
-        if r.encoding is None:
-            r.encoding = "utf-8"
-        for line in r.iter_lines(decode_unicode=True):
-            yield (False , json.loads(line)["response"])
-    except:
-        return (True, "an error occurred")
+    def __init__(self, method: str, url: str, **kwargs):
+
+        # set default values if the kwargs don't provide it
+        if kwargs.get("stream") is None:
+            kwargs["stream"] = True
+        elif kwargs.get("timeout") is None:
+            kwargs["timeout"] = (0.5,5)
+
+        try:
+            r = requests.request(method, url, **kwargs)
+            if r.encoding is None:
+                r.encoding = "utf-8"
+            self.response = r
+            self.error = (False,"")
+        except requests.ConnectionError:
+            self.error = (True,"Cannot connect to the server")
+        except requests.HTTPError:
+            self.error = (True,"HTTP error occurred")
+        except requests.TooManyRedirects:
+            self.error = (True,"Too many redirects")
+        except requests.Timeout:
+            self.error = (True,"request timed out")
+        except requests.RequestException:
+            self.error = (True,"There was an ambiguous error")
 
 
 def init_model_list() -> None:
