@@ -110,6 +110,19 @@ class StreamRequest:
         except requests.RequestException:
             self.error = (True,"There was an ambiguous error")
 
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+
+        try:
+            # returning objects
+        except requests.RequestException:
+            # handling exceptions
+        except StopIteration:
+            # check what happened
+            raise StopIteration
+
 
 def init_model_list() -> None:
     """
