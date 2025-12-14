@@ -75,6 +75,8 @@ def http_request(method: str, url: str, **kwargs) -> HttpResponse:
         ret_val = -5
     return HttpResponse(resp, ret_val)
 
+class StreamError(Exception):
+    pass
 
 class StreamRequest:
     """
@@ -115,8 +117,10 @@ class StreamRequest:
         if self.error[0]:
             raise StreamError(self.error[1])
 
+        if self.response.encoding is None:
+            self.response.encoding = 'utf-8'
         # convert the response to an iterator
-        self.response = iter(self.response.iter_lines())
+        self.response = iter(self.response.iter_lines(decode_unicode=True))
 
         return self
 
