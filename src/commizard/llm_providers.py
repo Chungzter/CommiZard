@@ -111,6 +111,13 @@ class StreamRequest:
             self.error = (True,"There was an ambiguous error")
 
     def __iter__(self):
+        # throw an exception if there was an error in the initial request
+        if self.error[0]:
+            raise StreamError(self.error[1])
+
+        # convert the response to an iterator
+        self.response = iter(self.response.iter_lines())
+
         return self
 
     def __next__(self):
