@@ -126,13 +126,16 @@ class StreamRequest:
 
     def __next__(self):
 
+        if self.error[0]:
+            raise StreamError(self.error[1])
+
         try:
             # returning objects
-        except requests.RequestException:
-            # handling exceptions
         except StopIteration:
-            # check what happened
+            # cleanup
             raise StopIteration
+        except Exception:
+            # handling exceptions and cleanup
 
 
 def init_model_list() -> None:
