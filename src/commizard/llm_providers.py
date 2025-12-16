@@ -118,7 +118,7 @@ class StreamRequest:
             raise StreamError(self.error[1])
 
         # convert the response to an iterator
-        self.response = iter(self.response.iter_lines(decode_unicode=True))
+        self.stream = iter(self.response.iter_lines(decode_unicode=True))
 
         return self
 
