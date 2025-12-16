@@ -75,8 +75,10 @@ def http_request(method: str, url: str, **kwargs) -> HttpResponse:
         ret_val = -5
     return HttpResponse(resp, ret_val)
 
+
 class StreamError(Exception):
     pass
+
 
 class StreamRequest:
     """
@@ -87,30 +89,30 @@ class StreamRequest:
         for l in StreamRequest("GET", "https://example.com"):
             print(l)
     """
-    def __init__(self, method: str, url: str, **kwargs):
 
+    def __init__(self, method: str, url: str, **kwargs):
         # set default values if the kwargs don't provide it
         if kwargs.get("stream") is None:
             kwargs["stream"] = True
         elif kwargs.get("timeout") is None:
-            kwargs["timeout"] = (0.5,5)
+            kwargs["timeout"] = (0.5, 5)
 
         try:
             r = requests.request(method, url, **kwargs)
             if r.encoding is None:
                 r.encoding = "utf-8"
             self.response = r
-            self.error = (False,"")
+            self.error = (False, "")
         except requests.ConnectionError:
-            self.error = (True,"Cannot connect to the server")
+            self.error = (True, "Cannot connect to the server")
         except requests.HTTPError:
-            self.error = (True,"HTTP error occurred")
+            self.error = (True, "HTTP error occurred")
         except requests.TooManyRedirects:
-            self.error = (True,"Too many redirects")
+            self.error = (True, "Too many redirects")
         except requests.Timeout:
-            self.error = (True,"request timed out")
+            self.error = (True, "request timed out")
         except requests.RequestException:
-            self.error = (True,"There was an ambiguous error")
+            self.error = (True, "There was an ambiguous error")
 
     def __iter__(self):
         # throw an exception if there was an error in the initial request
@@ -123,14 +125,18 @@ class StreamRequest:
         return self
 
     def __next__(self):
-
         try:
-            # returning objects
-        except StopIteration:
-            # cleanup
-            raise StopIteration
-        except Exception:
-            # handling exceptions and cleanup
+            return next(self.stream)
+        except (StopIteration, requests.exceptions.ChunkedEncodingError) as e:
+            self.response.close()
+
+            if isinstance(e, StopIteration):
+                raise
+            else:  # e == ChunkedEncodingError
+                raise StreamError(
+                    "The server closed the connection before "
+                    "the full response was received."
+                )
 
 
 def init_model_list() -> None:
