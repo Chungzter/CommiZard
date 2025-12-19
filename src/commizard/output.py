@@ -87,3 +87,37 @@ def wrap_text(text: str, width: int = 70) -> str:
     ]
     # preserve the last \n if the texts contains it.
     return "\n".join(wrapped_lines) + ("\n" if text.endswith("\n") else "")
+
+
+def curate_stream(resp: str, buff: str, width: int = 70) -> str:
+    """
+    curates response sent from an LLM in the NDJSON format, finds the token,
+    processes it to a valid token to be added to buff.
+
+    Args:
+        resp: NDJSON response.
+        buff: Current buffer.
+        width(default: 80): The maximum length of wrapped lines
+
+    Returns:
+        the updated buffer.
+    """
+    token = json.loads(resp)["response"]
+
+    curr_line = buff.split("\n")[-1]
+    curr_len = len(curr_line)
+
+    if (curr_len + len(token)) <= width:
+        # Do nothing if there's no problem
+        return buff + token
+    else:
+        last_token = curr_line.split(' ')[-1]
+
+        if last_token == "":
+            return buff.rstrip() + '\n' + token
+        else:
+            # every valid token except the last one that's incomplete
+            words = curr_line.split(" ")[:-1]
+
+            res = " ".join(words) + last_token + token
+            return res
