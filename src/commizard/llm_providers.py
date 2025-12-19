@@ -96,7 +96,7 @@ class StreamRequest:
             kwargs["stream"] = True
         elif kwargs.get("timeout") is None:
             kwargs["timeout"] = (0.5, 5)
-
+        self.response = None
         try:
             r = requests.request(method, url, **kwargs)
             if r.encoding is None:
@@ -118,7 +118,9 @@ class StreamRequest:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.response.close()
+        if self.response is not None:
+            self.response.close()
+
         # Don't catch any exceptions and let them propagate
         if exc_type is not None:
             return False
