@@ -114,6 +114,12 @@ class StreamRequest:
         except requests.RequestException:
             self.error = (True, "There was an ambiguous error")
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return None
+
     def __iter__(self):
         # throw an exception if there was an error in the initial request
         if self.error[0]:
