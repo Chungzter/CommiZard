@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import textwrap
 
 from rich.console import Console
@@ -111,10 +112,10 @@ def curate_stream(resp: str, buff: str, width: int = 70) -> str:
         # Do nothing if there's no problem
         return buff + token
     else:
-        last_token = curr_line.split(' ')[-1]
+        last_token = curr_line.split(" ")[-1]
 
         if last_token == "":
-            return buff.rstrip() + '\n' + token
+            return buff.rstrip() + "\n" + token
         else:
             # every valid token except the last one that's incomplete
             words = curr_line.split(" ")[:-1]

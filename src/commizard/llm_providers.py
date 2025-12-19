@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import requests
 
 from . import config, output
@@ -98,7 +97,7 @@ class StreamRequest:
             kwargs["timeout"] = (0.5, 5)
         self.response = None
         try:
-            r = requests.request(method, url, **kwargs)
+            r = requests.request(method, url, **kwargs)  # noqa: S113
             if r.encoding is None:
                 r.encoding = "utf-8"
 
@@ -149,7 +148,7 @@ class StreamRequest:
             raise StreamError(
                 "The server closed the connection before "
                 "the full response was received."
-            )
+            ) from None
 
 
 def init_model_list() -> None:
