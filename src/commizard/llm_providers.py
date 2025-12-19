@@ -118,6 +118,10 @@ class StreamRequest:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.response.close()
+        # Don't catch any exceptions and let them propagate
+        if exc_type is not None:
+            return False
         return None
 
     def __iter__(self):
@@ -133,16 +137,11 @@ class StreamRequest:
     def __next__(self):
         try:
             return next(self.stream)
-        except (StopIteration, requests.exceptions.ChunkedEncodingError) as e:
-            self.response.close()
-
-            if isinstance(e, StopIteration):
-                raise
-            else:  # e == ChunkedEncodingError
-                raise StreamError(
-                    "The server closed the connection before "
-                    "the full response was received."
-                )
+        except requests.exceptions.ChunkedEncodingError:
+            raise StreamError(
+                "The server closed the connection before "
+                "the full response was received."
+            )
 
 
 def init_model_list() -> None:
