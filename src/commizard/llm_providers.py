@@ -101,6 +101,12 @@ class StreamRequest:
             r = requests.request(method, url, **kwargs)
             if r.encoding is None:
                 r.encoding = "utf-8"
+
+            # Skip initialization if the status code was wrong
+            if r.status_code != 200:
+                self.error = (True, get_error_message(r.status_code))
+                return
+
             self.response = r
             self.error = (False, "")
         except requests.ConnectionError:
