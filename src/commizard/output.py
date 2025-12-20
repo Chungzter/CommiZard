@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import textwrap
 
 from rich.console import Console
@@ -90,35 +89,49 @@ def wrap_text(text: str, width: int = 70) -> str:
     return "\n".join(wrapped_lines) + ("\n" if text.endswith("\n") else "")
 
 
-def curate_stream(resp: str, buff: str, width: int = 70) -> str:
+def wrap_token(
+    token: str, pending: str, curr_len: int, width: int = 70
+) -> tuple[list[str], str, int]:
     """
-    curates response sent from an LLM in the NDJSON format, finds the token,
-    processes it to a valid token to be added to buff.
+    Processes a single token from the LLM stream and determines which characters
+    can be safely emitted without breaking words or exceeding the specified line
+    width.
+    Incomplete words are retained in the pending buffer until they can be
+    emitted safely.
 
     Args:
-        resp: NDJSON response.
-        buff: Current buffer.
-        width(default: 80): The maximum length of wrapped lines
+        token: LLM's response token
+        pending: Current uncommited buffer, which is guaranteed to be smaller
+        than the width(len(pending) < width).
+        curr_len: Length of the current line.
+        width(default=70): The maximum length of wrapped lines
 
     Returns:
-        the updated buffer.
+        result: Ordered chunks safe to append or print.
+        pending: Remaining uncommitted trailing text
+        curr_len: Updated current line length
     """
-    token = json.loads(resp)["response"]
+    # Written on Yalda night 🍉 🍎 - redesign of the prototype.
+    res = []
+    work_buf = pending + token
 
-    curr_line = buff.split("\n")[-1]
-    curr_len = len(curr_line)
-
-    if (curr_len + len(token)) <= width:
-        # Do nothing if there's no problem
-        return buff + token
-    else:
-        last_token = curr_line.split(" ")[-1]
-
-        if last_token == "":
-            return buff.rstrip() + "\n" + token
+    for char in work_buf:
+        # line is finished
+        if char == "\n":
+            res.append(char)
+            curr_len = 0
+        # the word is finished, and ready to be flushed
+        elif char == " ":
+            # wrap if we can't directly flush it
+            if len(pending)+curr_len > width:
+                #correctly put newline before adding the word
+            else:
+                # directly consume the working buffer
+            curr_len = 0
+        # not finished. Skip the char
         else:
-            # every valid token except the last one that's incomplete
-            words = curr_line.split(" ")[:-1]
-
-            res = " ".join(words) + last_token + token
-            return res
+            curr_len += 1
+            # manage if the char is too long for the width
+            if curr_len > width:
+                pass
+    return res, work_buf, curr_len
