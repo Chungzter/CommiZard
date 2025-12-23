@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import textwrap
-
+import re
 from rich.console import Console
 from rich.padding import Padding
 from rich.table import Table
@@ -111,27 +111,31 @@ def wrap_token(
         pending: Remaining uncommitted trailing text
         curr_len: Updated current line length
     """
-    # Written on Yalda night 🍉 🍎 - redesign of the prototype.
     res = []
     work_buf = pending + token
 
-    for char in work_buf:
-        # line is finished
-        if char == "\n":
-            res.append(char)
-            curr_len = 0
-        # the word is finished, and ready to be flushed
-        elif char == " ":
-            # wrap if we can't directly flush it
-            if len(pending)+curr_len > width:
-                #correctly put newline before adding the word
+    # split the text into words, preserving whitespace characters as words
+    words = re.split(r"(\s+)",work_buf)
+
+    for word in words[:-1]:
+        word_len = len(word)
+        if curr_len+word_len <= width:
+            res.append(word)
+            if word == "\n":
+                curr_len = 0
+            # override last char if it's a space
+            elif word == " " and curr_len+word_len == width:
+                res[-1] = "\n"
+                curr_len = 0
             else:
-                # directly consume the working buffer
-            curr_len = 0
-        # not finished. Skip the char
+                curr_len += word_len
         else:
-            curr_len += 1
-            # manage if the char is too long for the width
-            if curr_len > width:
-                pass
-    return res, work_buf, curr_len
+            res.append("\n")
+            if word != " ":
+                res.append(word)
+                curr_len = word_len
+            # don't append space
+            else:
+                curr_len =0
+
+    return res, words[-1], curr_len
