@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import textwrap
-import re
 from rich.console import Console
+from rich.live import Live
 from rich.padding import Padding
 from rich.table import Table
+from rich.text import Text
 
 console: Console = Console()
 error_console: Console = Console(stderr=True)
+stream_console: Console = Console()
 
 
 def init_console(color: bool) -> None:
@@ -17,11 +19,12 @@ def init_console(color: bool) -> None:
     Args:
         color (bool): Whether to use color.
     """
-    global console, error_console
+    global console, error_console, stream_console
     if color:
         error_console = Console(stderr=True, style="bold red")
     else:
         console = Console(color_system=None)
+        stream_console = Console(color_system=None)
         error_console = Console(stderr=True, color_system=None)
 
 
@@ -89,55 +92,35 @@ def wrap_text(text: str, width: int = 70) -> str:
     return "\n".join(wrapped_lines) + ("\n" if text.endswith("\n") else "")
 
 
-def wrap_token(
-    token: str, pending: str, curr_len: int, width: int = 70
-) -> tuple[list[str], str, int]:
+class StreamPrint:
     """
-    Processes a single token from the LLM stream and determines which characters
-    can be emitted without breaking words or exceeding the specified line width.
-    Incomplete words are retained in the pending buffer until they can be
-    emitted safely.
-
-    Args:
-        token: LLM's response token
-        pending: Current uncommited buffer
-        curr_len: Length of the current line
-        width(default=70): The maximum length of wrapped lines
-
-    Returns:
-        result: Ordered chunks safe to append or print.
-        pending: Remaining uncommitted trailing text
-        curr_len: Updated current line length
+    print a stream of LLM's response to stdout, wrapped at width.
     """
-    res = []
-    work_buf = pending + token
 
-    # split the text into words, preserving whitespace characters as words
-    words = re.split(r"(\s+)", work_buf)
+    def __init__(self, width: int = 70):
+        # store the wrap width before changing it
+        self._default_width = stream_console.width
+        self.console = stream_console
+        self.console.width = width
+        self.txt = Text(style="blue")
+        self.live = Live(
+            self.txt,
+            console=self.console,
+            vertical_overflow="visible",
+            refresh_per_second=30,
+        )
 
-    for word in words[:-1]:
-        word_len = len(word)
+    def _print_stream(self, tok: str):
+        self.txt.append(tok)
 
-        if curr_len + word_len <= width:
-            res.append(word)
+    def set_width(self, width: int):
+        self.console.width = width
 
-            if curr_len + word_len == width and '\n' not in word:
-                res.append('\n')
-                curr_len = 0
+    def __enter__(self):
+        self.live.__enter__()
+        return self._print_stream
 
-            elif "\n" in word:
-                curr_len = len(word[word.rfind('\n'):]) - 1
-
-            else:
-                curr_len += word_len
-
-        else:
-            res.append("\n")
-            if word != " ":
-                res.append(word)
-                curr_len = word_len
-            # don't append space
-            else:
-                curr_len = 0
-
-    return res, words[-1], curr_len
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # restore the stream_console's width
+        self.console.width = self._default_width
+        self.live.__exit__(exc_type, exc_val, exc_tb)
