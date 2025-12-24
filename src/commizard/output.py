@@ -94,16 +94,14 @@ def wrap_token(
 ) -> tuple[list[str], str, int]:
     """
     Processes a single token from the LLM stream and determines which characters
-    can be safely emitted without breaking words or exceeding the specified line
-    width.
+    can be emitted without breaking words or exceeding the specified line width.
     Incomplete words are retained in the pending buffer until they can be
     emitted safely.
 
     Args:
         token: LLM's response token
-        pending: Current uncommited buffer, which is guaranteed to be smaller
-        than the width(len(pending) < width).
-        curr_len: Length of the current line.
+        pending: Current uncommited buffer
+        curr_len: Length of the current line
         width(default=70): The maximum length of wrapped lines
 
     Returns:
@@ -123,13 +121,12 @@ def wrap_token(
         if curr_len + word_len <= width:
             res.append(word)
 
-            if "\n" in word:
+            if curr_len + word_len == width and '\n' not in word:
+                res.append('\n')
                 curr_len = 0
 
-            # override last char if it's a space
-            elif word == " " and curr_len + word_len == width:
-                res[-1] = "\n"
-                curr_len = 0
+            elif "\n" in word:
+                curr_len = len(word[word.rfind('\n'):]) - 1
 
             else:
                 curr_len += word_len
