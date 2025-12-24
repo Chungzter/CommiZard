@@ -115,20 +115,25 @@ def wrap_token(
     work_buf = pending + token
 
     # split the text into words, preserving whitespace characters as words
-    words = re.split(r"(\s+)",work_buf)
+    words = re.split(r"(\s+)", work_buf)
 
     for word in words[:-1]:
         word_len = len(word)
-        if curr_len+word_len <= width:
+
+        if curr_len + word_len <= width:
             res.append(word)
-            if word == "\n":
+
+            if "\n" in word:
                 curr_len = 0
+
             # override last char if it's a space
-            elif word == " " and curr_len+word_len == width:
+            elif word == " " and curr_len + word_len == width:
                 res[-1] = "\n"
                 curr_len = 0
+
             else:
                 curr_len += word_len
+
         else:
             res.append("\n")
             if word != " ":
@@ -136,6 +141,6 @@ def wrap_token(
                 curr_len = word_len
             # don't append space
             else:
-                curr_len =0
+                curr_len = 0
 
     return res, words[-1], curr_len
