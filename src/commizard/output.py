@@ -9,7 +9,8 @@ from rich.text import Text
 
 console: Console = Console()
 error_console: Console = Console(stderr=True)
-stream_console: Console = Console()
+stream_console: Console = Console(width=70)
+stream_txt = Text(style="blue")
 
 
 def init_console(color: bool) -> None:
@@ -24,7 +25,7 @@ def init_console(color: bool) -> None:
         error_console = Console(stderr=True, style="bold red")
     else:
         console = Console(color_system=None)
-        stream_console = Console(color_system=None)
+        stream_console = Console(color_system=None, width=70)
         error_console = Console(stderr=True, color_system=None)
 
 
@@ -92,35 +93,18 @@ def wrap_text(text: str, width: int = 70) -> str:
     return "\n".join(wrapped_lines) + ("\n" if text.endswith("\n") else "")
 
 
-class StreamPrint:
-    """
-    print a stream of LLM's response to stdout, wrapped at width.
-    """
+def LiveStream() -> Live:
+    return Live(
+        stream_txt,
+        console=stream_console,
+        vertical_overflow="visible",
+        refresh_per_second=30,
+    )
 
-    def __init__(self, width: int = 70):
-        # store the wrap width before changing it
-        self._default_width = stream_console.width
-        self.console = stream_console
-        self.console.width = width
-        self.txt = Text(style="blue")
-        self.live = Live(
-            self.txt,
-            console=self.console,
-            vertical_overflow="visible",
-            refresh_per_second=30,
-        )
 
-    def _print_stream(self, tok: str):
-        self.txt.append(tok)
+def set_width(width: int) -> None:
+    stream_console.width = width
 
-    def set_width(self, width: int):
-        self.console.width = width
 
-    def __enter__(self):
-        self.live.__enter__()
-        return self._print_stream
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        # restore the stream_console's width
-        self.console.width = self._default_width
-        self.live.__exit__(exc_type, exc_val, exc_tb)
+def print_token(tok: str) -> None:
+    stream_txt.append(tok)
