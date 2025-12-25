@@ -166,7 +166,9 @@ def generate_message(opts: list[str]) -> None:
 
     wrapped_res = title + ("\n\n" + body if len(res_paragraphs) > 1 else "")
     llm_providers.gen_message = wrapped_res
-    output.print_generated(wrapped_res)
+
+    if not config.STREAM:
+        output.print_generated(wrapped_res)
 
 
 def cmd_clear(opts: list[str]) -> None:
