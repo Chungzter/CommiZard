@@ -93,6 +93,8 @@ def wrap_text(text: str, width: int = 70) -> str:
     return "\n".join(wrapped_lines) + ("\n" if text.endswith("\n") else "")
 
 
+# TODO: Streaming wrap currently handled by Rich Live. This should be replaced
+#       with a stream wrapper for a more efficient execution
 def LiveStream() -> Live:
     return Live(
         stream_txt,

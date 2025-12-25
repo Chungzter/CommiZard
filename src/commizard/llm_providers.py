@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import requests
 
 from . import config, output
@@ -313,6 +315,33 @@ def get_error_message(status_code: int) -> str:
 
 
 # TODO: see issue #15
+def stream_generate(prompt: str) -> tuple[int, str]:
+    url = config.gen_request_url()
+    payload = {"model": selected_model, "prompt": prompt, "stream": True}
+    res = ""
+    try:
+        with (
+            StreamRequest("POST", url, json=payload) as stream,
+            output.LiveStream(),
+        ):
+            output.set_width(70)
+            for s in stream:
+                resp = json.loads(s)["response"]
+                res += resp
+                output.print_token(resp)
+
+    except KeyError:
+        return (1, "couldn't find respond from JSON")
+
+    except json.decoder.JSONDecodeError:
+        return (1, "couldn't decode JSON response")
+
+    except StreamError as e:
+        return (1, str(e))
+
+    return (0, res)
+
+
 def generate(prompt: str) -> tuple[int, str]:
     """
     generates a response by prompting the selected_model.
