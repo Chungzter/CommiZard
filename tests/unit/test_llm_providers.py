@@ -287,7 +287,13 @@ def test_get_error_message(error_code, expected_result):
             (1, "can't connect to the server"),
         ),
         (False, 200, {"response": "Hello world"}, None, (0, "Hello world")),
-        (False, 200, {"response": "  Hello world\n"}, None, (0, "Hello world")),
+        (
+            False,
+            200,
+            {"response": "  Hello world\n"},
+            None,
+            (0, "  Hello world\n"),
+        ),
         (
             False,
             500,

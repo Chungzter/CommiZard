@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import textwrap
+
 from rich.console import Console
 from rich.live import Live
 from rich.padding import Padding
@@ -95,7 +96,7 @@ def wrap_text(text: str, width: int = 70) -> str:
 
 # TODO: Streaming wrap currently handled by Rich Live. This should be replaced
 #       with a stream wrapper for a more efficient execution
-def LiveStream() -> Live:
+def live_stream() -> Live:
     return Live(
         stream_txt,
         console=stream_console,

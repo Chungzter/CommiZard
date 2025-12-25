@@ -322,7 +322,7 @@ def stream_generate(prompt: str) -> tuple[int, str]:
     try:
         with (
             StreamRequest("POST", url, json=payload) as stream,
-            output.LiveStream(),
+            output.live_stream(),
         ):
             output.set_width(70)
             for s in stream:
@@ -331,13 +331,13 @@ def stream_generate(prompt: str) -> tuple[int, str]:
                 output.print_token(resp)
 
     except KeyError:
-        return (1, "couldn't find respond from JSON")
+        return 1, "couldn't find respond from JSON"
 
     except json.decoder.JSONDecodeError:
-        return (1, "couldn't decode JSON response")
+        return 1, "couldn't decode JSON response"
 
     except StreamError as e:
-        return (1, str(e))
+        return 1, str(e)
 
     return (0, res)
 

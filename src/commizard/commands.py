@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pyperclip
 
-from . import git_utils, llm_providers, output, config
+from . import config, git_utils, llm_providers, output
 
 if TYPE_CHECKING:
     from collections.abc import Callable
