@@ -363,7 +363,7 @@ def generate(prompt: str) -> tuple[int, str]:
     if r.is_error():
         return 1, r.err_message()
     elif r.return_code == 200:
-        return 0, r.response.get("response").strip()
+        return 0, r.response.get("response")
     else:
         error_msg = get_error_message(r.return_code)
         return r.return_code, error_msg
