@@ -8,6 +8,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Added a new feature that streams the output of the LLM as it's generating,
+  which feels more responsive and "faster"
+- There's a new argument `--stream` that enables said streaming functionality.
+  This will be the default in the future and will change to `--no-stream` in
+  later releases once this feature is more honed and refined
+
 ## [0.4.1] - 2025-12-11
 
 ### Changed

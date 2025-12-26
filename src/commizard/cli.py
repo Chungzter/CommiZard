@@ -17,6 +17,7 @@ Options:
   -v, --version    Show version information
   --no-color       Don't colorize output
   --no-banner      Disable the ASCII welcome banner
+  --stream         Stream generated prompt to stdout
 """
 
 
@@ -30,6 +31,7 @@ def handle_args():
         "--help",
         "--no-banner",
         "--no-color",
+        "--stream",
     ]
     if sys.argv[1] not in supported_args:
         print(f"Unknown option: {sys.argv[1]}")
@@ -45,6 +47,8 @@ def handle_args():
         config.SHOW_BANNER = False
     elif sys.argv[1] == "--no-color":
         config.USE_COLOR = False
+    elif sys.argv[1] == "--stream":
+        config.STREAM = True
 
 
 def main() -> int:

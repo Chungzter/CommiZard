@@ -9,6 +9,7 @@ LLM_URL: str = OLLAMA_DEFAULT_URL
 
 USE_COLOR: bool = True
 SHOW_BANNER: bool = True
+STREAM: bool = False
 
 
 def set_url(url: str):

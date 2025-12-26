@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import requests
 
 from . import config, output
@@ -73,6 +75,82 @@ def http_request(method: str, url: str, **kwargs) -> HttpResponse:
     except requests.RequestException:
         ret_val = -5
     return HttpResponse(resp, ret_val)
+
+
+class StreamError(Exception):
+    pass
+
+
+class StreamRequest:
+    """
+    Streams an HTTP request.
+    This class is intended to be used as an iterator.
+
+    Example usage:
+        for l in StreamRequest("GET", "https://example.com"):
+            print(l)
+    """
+
+    def __init__(self, method: str, url: str, **kwargs):
+        # set default values if the kwargs don't provide it
+        if kwargs.get("stream") is None:
+            kwargs["stream"] = True
+        elif kwargs.get("timeout") is None:
+            kwargs["timeout"] = (0.5, 5)
+        self.response = None
+        try:
+            r = requests.request(method, url, **kwargs)  # noqa: S113
+            if r.encoding is None:
+                r.encoding = "utf-8"
+
+            # Skip initialization if the status code was wrong
+            if r.status_code != 200:
+                self.error = (True, get_error_message(r.status_code))
+                return
+
+            self.response = r
+            self.error = (False, "")
+        except requests.ConnectionError:
+            self.error = (True, "Cannot connect to the server")
+        except requests.HTTPError:
+            self.error = (True, "HTTP error occurred")
+        except requests.TooManyRedirects:
+            self.error = (True, "Too many redirects")
+        except requests.Timeout:
+            self.error = (True, "request timed out")
+        except requests.RequestException:
+            self.error = (True, "There was an ambiguous error")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.response is not None:
+            self.response.close()
+
+        # Don't catch any exceptions and let them propagate
+        if exc_type is not None:
+            return False
+        return None
+
+    def __iter__(self):
+        # throw an exception if there was an error in the initial request
+        if self.error[0]:
+            raise StreamError(self.error[1])
+
+        # convert the response to an iterator
+        self.stream = iter(self.response.iter_lines(decode_unicode=True))
+
+        return self
+
+    def __next__(self):
+        try:
+            return next(self.stream)
+        except requests.exceptions.ChunkedEncodingError:
+            raise StreamError(
+                "The server closed the connection before "
+                "the full response was received."
+            ) from None
 
 
 def init_model_list() -> None:
@@ -237,6 +315,33 @@ def get_error_message(status_code: int) -> str:
 
 
 # TODO: see issue #15
+def stream_generate(prompt: str) -> tuple[int, str]:
+    url = config.gen_request_url()
+    payload = {"model": selected_model, "prompt": prompt, "stream": True}
+    res = ""
+    try:
+        with (
+            StreamRequest("POST", url, json=payload) as stream,
+            output.live_stream(),
+        ):
+            output.set_width(70)
+            for s in stream:
+                resp = json.loads(s)["response"]
+                res += resp
+                output.print_token(resp)
+
+    except KeyError:
+        return 1, "couldn't find respond from JSON"
+
+    except json.decoder.JSONDecodeError:
+        return 1, "couldn't decode JSON response"
+
+    except StreamError as e:
+        return 1, str(e)
+
+    return (0, res)
+
+
 def generate(prompt: str) -> tuple[int, str]:
     """
     generates a response by prompting the selected_model.
@@ -258,7 +363,7 @@ def generate(prompt: str) -> tuple[int, str]:
     if r.is_error():
         return 1, r.err_message()
     elif r.return_code == 200:
-        return 0, r.response.get("response").strip()
+        return 0, r.response.get("response")
     else:
         error_msg = get_error_message(r.return_code)
         return r.return_code, error_msg

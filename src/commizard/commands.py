@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pyperclip
 
-from . import git_utils, llm_providers, output
+from . import config, git_utils, llm_providers, output
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -149,14 +149,17 @@ def generate_message(opts: list[str]) -> None:
         return
 
     prompt = llm_providers.generation_prompt + diff
-    stat, res = llm_providers.generate(prompt)
+    if config.STREAM:
+        stat, res = llm_providers.stream_generate(prompt)
+    else:
+        stat, res = llm_providers.generate(prompt)
 
     if stat != 0:
         output.print_error(res)
         return
 
     # separate the title and the body and wrap them
-    res_paragraphs = res.split("\n\n", 1)
+    res_paragraphs = res.strip().split("\n\n", 1)
     title = output.wrap_text(res_paragraphs[0], 50)
     body = (
         output.wrap_text(res_paragraphs[1], 72)
@@ -166,7 +169,9 @@ def generate_message(opts: list[str]) -> None:
 
     wrapped_res = title + ("\n\n" + body if len(res_paragraphs) > 1 else "")
     llm_providers.gen_message = wrapped_res
-    output.print_generated(wrapped_res)
+
+    if not config.STREAM:
+        output.print_generated(wrapped_res)
 
 
 def cmd_clear(opts: list[str]) -> None:
