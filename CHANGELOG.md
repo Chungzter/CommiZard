@@ -8,6 +8,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.2] - 2025-12-27
+
 ### Added
 
 - Added a new feature that streams the output of the LLM as it's generating,
@@ -169,9 +171,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - MIT open source license.
 - PyPI release: the package can now be installed with `pip install commizard`.
 
-[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.4.1...master
+[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.4.2...master
 
-[0.4.0]: https://github.com/Chungzter/CommiZard/compare/v0.4.0...v0.4.1
+[0.4.2]: https://github.com/Chungzter/CommiZard/compare/v0.4.1...v0.4.2
+
+[0.4.1]: https://github.com/Chungzter/CommiZard/compare/v0.4.0...v0.4.1
 
 [0.4.0]: https://github.com/Chungzter/CommiZard/compare/v0.3.0...v0.4.0
 
