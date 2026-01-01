@@ -331,10 +331,10 @@ def stream_generate(prompt: str) -> tuple[int, str]:
                 output.print_token(resp)
 
     except KeyError:
-        return 1, "couldn't find respond from JSON"
+        return 1, "Couldn't find response from JSON"
 
     except json.decoder.JSONDecodeError:
-        return 1, "couldn't decode JSON response"
+        return 1, "Couldn't decode JSON response"
 
     except StreamError as e:
         return 1, str(e)
