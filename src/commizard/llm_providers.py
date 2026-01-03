@@ -213,7 +213,7 @@ def request_load_model(model_name: str) -> HttpResponse:
         a HttpResponse object
     """
     payload = {"model": model_name}
-    url = config.gen_request_url()
+    url = config.LLM_URL + "api/generate"
     return http_request("POST", url, json=payload, timeout=(0.3, 600))
 
 
@@ -314,7 +314,6 @@ def get_error_message(status_code: int) -> str:
         )
 
 
-# TODO: see issue #15
 def stream_generate(prompt: str) -> tuple[int, str]:
     url = config.gen_request_url()
     payload = {"model": selected_model, "prompt": prompt, "stream": True}
@@ -358,12 +357,14 @@ def generate(prompt: str) -> tuple[int, str]:
             "No model selected. You must use the start command to specify "
             "which model to use before generating.\nExample: start model_name"
         )
-    payload = {"model": selected_model, "prompt": prompt, "stream": False}
+    message = [{"role":"user","content":prompt}]
+    payload = {"model": selected_model, "messages": message, "stream": False}
     r = http_request("POST", url, json=payload)
     if r.is_error():
         return 1, r.err_message()
     elif r.return_code == 200:
-        return 0, r.response.get("response")
+        res = r.response.get("choices")[0]["message"]["content"]
+        return 0, res
     else:
         error_msg = get_error_message(r.return_code)
         return r.return_code, error_msg
