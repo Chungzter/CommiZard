@@ -316,16 +316,24 @@ def get_error_message(status_code: int) -> str:
 
 def stream_generate(prompt: str) -> tuple[int, str]:
     url = config.gen_request_url()
-    payload = {"model": selected_model, "prompt": prompt, "stream": True}
+    head = {"Content-Type": "application/json","Authorization": "Bearer ollama"}
+    message = [{"role":"user","content":prompt}]
+    payload = {"model": selected_model, "messages": message, "stream": True}
     res = ""
     try:
         with (
-            StreamRequest("POST", url, json=payload) as stream,
+            StreamRequest("POST", url, json=payload, headers=head) as stream,
             output.live_stream(),
         ):
             output.set_width(70)
             for s in stream:
-                resp = json.loads(s)["response"]
+                if not s:
+                    continue
+
+                resp = json.loads(s[6:])["choices"][0]
+                if resp["finish_reason"] == "stop":
+                    break
+                resp = resp["delta"]["content"]
                 res += resp
                 output.print_token(resp)
 
