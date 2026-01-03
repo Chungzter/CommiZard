@@ -357,9 +357,10 @@ def generate(prompt: str) -> tuple[int, str]:
             "No model selected. You must use the start command to specify "
             "which model to use before generating.\nExample: start model_name"
         )
+    head = {"Content-Type": "application/json","Authorization": "Bearer ollama"}
     message = [{"role":"user","content":prompt}]
     payload = {"model": selected_model, "messages": message, "stream": False}
-    r = http_request("POST", url, json=payload)
+    r = http_request("POST", url, json=payload, headers=head)
     if r.is_error():
         return 1, r.err_message()
     elif r.return_code == 200:
