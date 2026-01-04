@@ -326,13 +326,21 @@ def stream_generate(prompt: str) -> tuple[int, str]:
             output.live_stream(),
         ):
             output.set_width(70)
-            for s in stream:
-                if not s:
+            for raw in stream:
+                line = raw.strip()
+
+                # it's whitespace or a comment
+                if not line or line.startswith(':'):
                     continue
 
-                resp = json.loads(s[6:])["choices"][0]
-                if resp["finish_reason"] == "stop":
+                # It's not data
+                if not line.startswith("data"):
+                    continue
+
+                resp = json.loads(line[5:]).strip()
+                if resp == "[DONE]":
                     break
+
                 resp = resp["delta"]["content"]
                 res += resp
                 output.print_token(resp)
