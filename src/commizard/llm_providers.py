@@ -338,12 +338,16 @@ def stream_generate(prompt: str) -> tuple[int, str]:
                     continue
 
                 resp = json.loads(line[5:]).strip()
+
                 if resp == "[DONE]":
                     break
 
-                resp = resp["delta"]["content"]
-                res += resp
-                output.print_token(resp)
+                delta = resp.get("choices",[{}])[0].get("delta", {})
+                if not delta:
+                    continue
+                delta = delta.get("content","")
+                res += delta
+                output.print_token(delta)
 
     except KeyError:
         return 1, "Couldn't find response from JSON"
@@ -354,7 +358,7 @@ def stream_generate(prompt: str) -> tuple[int, str]:
     except StreamError as e:
         return 1, str(e)
 
-    return (0, res)
+    return 0, res
 
 
 def generate(prompt: str) -> tuple[int, str]:
