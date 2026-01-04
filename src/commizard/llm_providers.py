@@ -360,8 +360,8 @@ def stream_generate(prompt: str) -> tuple[int, str]:
                 res += delta
                 output.print_token(delta)
 
-    except KeyError:
-        return 1, "Couldn't find response from JSON"
+    except (KeyError, IndexError):
+        return 1, "Couldn't find response from JSON: Invalid output"
 
     except json.decoder.JSONDecodeError:
         return 1, "Couldn't decode JSON response"
