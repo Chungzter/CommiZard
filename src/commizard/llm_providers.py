@@ -315,6 +315,17 @@ def get_error_message(status_code: int) -> str:
 
 
 def stream_generate(prompt: str) -> tuple[int, str]:
+    """
+    Generate LLM response by streaming the generated text.
+    Not: This function prints to stdout and also ignores reasoning output
+    Args:
+        prompt: The prompt to send to the LLM.
+
+    Returns:
+        a tuple of the return code and the response. The return code is 0 if the
+        response is ok, 1 otherwise. The response is the error message if the
+        request fails and the return code is 1.
+    """
     url = config.gen_request_url()
     head = {"Content-Type": "application/json","Authorization": "Bearer ollama"}
     message = [{"role":"user","content":prompt}]
@@ -334,15 +345,15 @@ def stream_generate(prompt: str) -> tuple[int, str]:
                     continue
 
                 # It's not data
-                if not line.startswith("data"):
+                if not line.startswith("data:"):
                     continue
 
-                resp = json.loads(line[5:]).strip()
-
-                if resp == "[DONE]":
+                line = line[5:].strip()
+                if line == "[DONE]":
                     break
 
-                delta = resp.get("choices",[{}])[0].get("delta", {})
+                resp = json.loads(line)
+                delta = resp["choices"][0].get("delta", {})
                 if not delta:
                     continue
                 delta = delta.get("content","")
