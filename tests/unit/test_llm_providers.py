@@ -183,15 +183,14 @@ def test_list_locals(
     mock_http_request.assert_called_once()
 
 
-@patch("commizard.llm_providers.config.gen_request_url")
 @patch("commizard.llm_providers.http_request")
-def test_request_load_model(mock_http_request, mock_url, monkeypatch):
+def test_request_load_model(mock_http_request, monkeypatch):
+    monkeypatch.setattr(llm.config, "LLM_URL", "TEST/")
     retval = HttpResponse("response", 420)
-    mock_url.return_value = "localhost"
     mock_http_request.return_value = retval
     assert llm.request_load_model("gpt") == retval
     mock_http_request.assert_called_once_with(
-        "POST", "localhost", json={"model": "gpt"}, timeout=(0.3, 600)
+        "POST", "TEST/api/generate", json={"model": "gpt"}, timeout=(0.3, 600)
     )
 
 
@@ -286,11 +285,25 @@ def test_get_error_message(error_code, expected_result):
             "can't connect to the server",
             (1, "can't connect to the server"),
         ),
-        (False, 200, {"response": "Hello world"}, None, (0, "Hello world")),
         (
             False,
             200,
-            {"response": "  Hello world\n"},
+            {
+                "choices": [
+                    {"message": {"role": "user", "content": "Hello world"}}
+                ]
+            },
+            None,
+            (0, "Hello world"),
+        ),
+        (
+            False,
+            200,
+            {
+                "choices": [
+                    {"message": {"role": "user", "content": "  Hello world\n"}}
+                ]
+            },
             None,
             (0, "  Hello world\n"),
         ),

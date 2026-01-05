@@ -327,8 +327,11 @@ def stream_generate(prompt: str) -> tuple[int, str]:
         request fails and the return code is 1.
     """
     url = config.gen_request_url()
-    head = {"Content-Type": "application/json","Authorization": "Bearer ollama"}
-    message = [{"role":"user","content":prompt}]
+    head = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ollama",
+    }
+    message = [{"role": "user", "content": prompt}]
     payload = {"model": selected_model, "messages": message, "stream": True}
     res = ""
     try:
@@ -341,7 +344,7 @@ def stream_generate(prompt: str) -> tuple[int, str]:
                 line = raw.strip()
 
                 # it's whitespace or a comment
-                if not line or line.startswith(':'):
+                if not line or line.startswith(":"):
                     continue
 
                 # It's not data
@@ -356,7 +359,7 @@ def stream_generate(prompt: str) -> tuple[int, str]:
                 delta = resp["choices"][0].get("delta", {})
                 if not delta:
                     continue
-                delta = delta.get("content","")
+                delta = delta.get("content", "")
                 res += delta
                 output.print_token(delta)
 
@@ -388,8 +391,11 @@ def generate(prompt: str) -> tuple[int, str]:
             "No model selected. You must use the start command to specify "
             "which model to use before generating.\nExample: start model_name"
         )
-    head = {"Content-Type": "application/json","Authorization": "Bearer ollama"}
-    message = [{"role":"user","content":prompt}]
+    head = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ollama",
+    }
+    message = [{"role": "user", "content": prompt}]
     payload = {"model": selected_model, "messages": message, "stream": False}
     r = http_request("POST", url, json=payload, headers=head)
     if r.is_error():
