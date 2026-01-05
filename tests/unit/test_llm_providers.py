@@ -314,8 +314,41 @@ def test_get_error_message(error_code, expected_result):
             None,
             (
                 500,
-                "Error 500: Internal Server Error - Ollama encountered an unexpected error.\nSuggestions:\n  • The model may have run out of memory (RAM/VRAM)\n  • Try restarting Ollama: ollama serve\n  • Check Ollama logs for detailed error information\n  • Consider using a smaller model if resources are limited",
+                "Error 500: Internal Server Error - Ollama encountered an "
+                "unexpected error.\nSuggestions:\n  • The model may have run"
+                " out of memory (RAM/VRAM)\n  • Try restarting Ollama: ollama "
+                "serve\n  • Check Ollama logs for detailed error information\n "
+                " • Consider using a smaller model if resources are limited",
             ),
+        ),
+        # real world test case
+        (
+            False,
+            200,
+            {
+                "id": "chatcmpl-406",
+                "object": "chat.completion",
+                "created": 1767616167,
+                "model": "smollm:135m",
+                "system_fingerprint": "fp_ollama",
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {
+                            "role": "assistant",
+                            "content": "Hello! How can I help you today?",
+                        },
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 11,
+                    "completion_tokens": 10,
+                    "total_tokens": 21,
+                },
+            },
+            None,
+            (0, "Hello! How can I help you today?"),
         ),
     ],
 )
