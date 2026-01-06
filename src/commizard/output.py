@@ -105,7 +105,7 @@ def live_stream() -> Live:
     )
 
 
-def set_width(width: int) -> None:
+def set_stream_print_width(width: int) -> None:
     stream_console.width = width
 
 

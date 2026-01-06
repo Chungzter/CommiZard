@@ -339,7 +339,7 @@ def stream_generate(prompt: str) -> tuple[int, str]:
             StreamRequest("POST", url, json=payload, headers=head) as stream,
             output.live_stream(),
         ):
-            output.set_width(70)
+            output.set_stream_print_width(70)
             for raw in stream:
                 line = raw.strip()
 

@@ -122,10 +122,10 @@ def test_live_stream(mock_live):
     assert isinstance(res, type(output.Live()))
 
 
-def test_set_width(monkeypatch):
+def test_set_stream_print_width(monkeypatch):
     monkeypatch.setattr(output.stream_console, "width", 69420)
     assert output.stream_console.width == 69420
-    output.set_width(42)
+    output.set_stream_print_width(42)
     assert output.stream_console.width == 42
 
 
