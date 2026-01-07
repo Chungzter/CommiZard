@@ -117,6 +117,95 @@ def test_http_request(
         assert result.return_code == expected_code
 
 
+@pytest.mark.parametrize(
+    "kwargs, expected_kwargs, error, status_code",
+    [
+        # 1. test kwarg passing correctly
+        (
+            {"data": "test"},
+            {"data": "test", "stream": True, "timeout": (0.5, 5)},
+            [(False, ""), None],
+            200,
+        ),
+        (
+            {"json": 1234, "stream": True},
+            {"json": 1234, "stream": True, "timeout": (0.5, 5)},
+            [(False, ""), None],
+            200,
+        ),
+        (
+            {"data": "test", "timeout": (1, 2)},
+            {"data": "test", "timeout": (1, 2), "stream": True},
+            [(False, ""), None],
+            200,
+        ),
+        (
+            {"test": [1, 2, 3], "timeout": (69, 420), "stream": False},
+            {"test": [1, 2, 3], "timeout": (69, 420), "stream": False},
+            [(False, ""), None],
+            200,
+        ),
+        # 2. test error status code (404, 503, etc.)
+        (
+            {"data": "test"},
+            {"data": "test", "stream": True, "timeout": (0.5, 5)},
+            [(True, llm.get_error_message(404)), None],
+            404,
+        ),
+        # 3. test exceptions thrown by requests
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "Cannot connect to the server"), requests.ConnectionError],
+            69,
+        ),
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "HTTP error occurred"), requests.HTTPError],
+            69,
+        ),
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "Too many redirects"), requests.TooManyRedirects],
+            69,
+        ),
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "request timed out"), requests.Timeout],
+            69,
+        ),
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "There was an ambiguous error"), requests.RequestException],
+            69,
+        ),
+    ],
+)
+@patch("commizard.llm_providers.requests.request")
+def test_stream_request_init(
+    mock_request, kwargs, expected_kwargs, error, status_code
+):
+    url = "https://test.com"
+    method = "TEST"
+    mock_resp = Mock()
+    mock_resp.status_code = status_code
+    mock_request.return_value = mock_resp
+    mock_request.side_effect = error[1]
+
+    obj = llm.StreamRequest(method, url, **kwargs)
+    mock_request.assert_called_once_with(method, url, **expected_kwargs)
+    assert obj.error == error[0]
+
+    if error[0][0]:
+        assert obj.response is None
+    else:
+        assert obj.response == mock_resp
+
+
 @patch("commizard.llm_providers.list_locals")
 def test_init_model_list(mock_list, monkeypatch):
     monkeypatch.setattr(llm, "available_models", None)
