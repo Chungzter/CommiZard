@@ -17,6 +17,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Streams sent by the server are now correctly parsed according to the SSE web
   API
+- Streaming requests now automatically get a timeout to prevent them from
+  hanging forever
 
 ## [0.4.2] - 2025-12-27
 

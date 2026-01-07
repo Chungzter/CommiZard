@@ -95,7 +95,8 @@ class StreamRequest:
         # set default values if the kwargs don't provide it
         if kwargs.get("stream") is None:
             kwargs["stream"] = True
-        elif kwargs.get("timeout") is None:
+
+        if kwargs.get("timeout") is None:
             kwargs["timeout"] = (0.5, 5)
         self.response = None
         try:
