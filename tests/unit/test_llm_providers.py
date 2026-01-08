@@ -206,6 +206,49 @@ def test_stream_request_init(
         assert obj.response == mock_resp
 
 
+@pytest.mark.parametrize("exception", [ValueError, llm.StreamError, None])
+def test_stream_request_context_manager(exception):
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.response = Mock()
+    stream_object.error = ("doesn't", "matter")
+
+    if exception is None:
+        with stream_object as obj:
+            assert obj is stream_object
+    else:
+        with pytest.raises(exception), stream_object as obj:
+            assert obj is stream_object
+            raise exception()
+
+    stream_object.response.close.assert_called_once()
+
+
+def test_stream_request_context_manager_none_response():
+    """
+    In here, we just check that the close method doesn't get called on None type
+    If it does, the function will raise the following exception:
+    AttributeError: 'NoneType' object has no attribute 'close'
+    """
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.response = None
+
+    with stream_object as obj:
+        assert obj is stream_object
+
+
+def test_stream_request_exit_propagates_exceptions_and_allows_normal_exit():
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.response = Mock()
+
+    # 1. correctly propagates exceptions
+    result = stream_object.__exit__(ValueError, ValueError(), None)
+    assert result is False
+
+    # 2. correctly returns on no exception
+    result = stream_object.__exit__(None, None, None)
+    assert result is None
+
+
 @patch("commizard.llm_providers.list_locals")
 def test_init_model_list(mock_list, monkeypatch):
     monkeypatch.setattr(llm, "available_models", None)
