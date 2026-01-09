@@ -248,6 +248,29 @@ def test_stream_request_exit_propagates_exceptions_and_allows_normal_exit():
     result = stream_object.__exit__(None, None, None)
     assert result is None
 
+@pytest.mark.parametrize("error", [(False, ""), (True, "Test error")])
+def test_stream_request_iter(error: tuple[bool, str]):
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.error = error
+    stream_object.stream = None
+
+    if error[0]:
+        with pytest.raises(llm.StreamError, match=error[1]):
+            stream_object.__iter__()
+        assert stream_object.stream is None
+    else:
+        stream_object.response = Mock()
+        # make a mock iterable return value
+        stream_object.response.iter_lines.return_value = [1, 2, 3]
+
+        obj = stream_object.__iter__()
+
+        stream_object.response.iter_lines.assert_called_once_with(
+            decode_unicode=True
+        )
+        assert obj is stream_object
+        assert type(stream_object.stream) is type(iter([]))
+
 
 @patch("commizard.llm_providers.list_locals")
 def test_init_model_list(mock_list, monkeypatch):
