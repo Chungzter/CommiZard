@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -247,6 +249,18 @@ def test_stream_request_exit_propagates_exceptions_and_allows_normal_exit():
     # 2. correctly returns on no exception
     result = stream_object.__exit__(None, None, None)
     assert result is None
+
+
+def test_stream_request_iterator_protocol_no_raises():
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.response = Mock()
+    data_for_test = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    stream_object.response.iter_lines.return_value = data_for_test
+    stream_object.error = (False, "")
+
+    for test, actual in zip(stream_object, data_for_test):
+        assert test == actual
+
 
 @pytest.mark.parametrize("error", [(False, ""), (True, "Test error")])
 def test_stream_request_iter(error: tuple[bool, str]):
