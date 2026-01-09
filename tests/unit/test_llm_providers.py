@@ -262,6 +262,29 @@ def test_stream_request_iterator_protocol_no_raises():
         assert test == actual
 
 
+def test_stream_request_dunder_next_no_raises():
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    iterable = [1, 2, 3, 4, 5]
+    stream_object.stream = iter(iterable)
+    assert stream_object.__next__() == next(iter(iterable))
+
+
+def test_stream_request_severed_connection():
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+
+    class FakeStream:
+        def __next__(self):
+            raise requests.exceptions.ChunkedEncodingError
+
+    stream_object.stream = FakeStream()
+    with pytest.raises(
+        llm.StreamError,
+        match=r"The server closed the connection before "
+        "the full response was received.",
+    ):
+        stream_object.__next__()
+
+
 @pytest.mark.parametrize("error", [(False, ""), (True, "Test error")])
 def test_stream_request_iter(error: tuple[bool, str]):
     stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
