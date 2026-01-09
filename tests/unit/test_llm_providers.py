@@ -269,7 +269,7 @@ def test_stream_request_dunder_next_no_raises():
     assert stream_object.__next__() == next(iter(iterable))
 
 
-def test_stream_request_severed_connection():
+def test_stream_request_dunder_next_severed_connection():
     stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
 
     class FakeStream:
@@ -286,7 +286,7 @@ def test_stream_request_severed_connection():
 
 
 @pytest.mark.parametrize("error", [(False, ""), (True, "Test error")])
-def test_stream_request_iter(error: tuple[bool, str]):
+def test_stream_request_dunder_iter(error: tuple[bool, str]):
     stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
     stream_object.error = error
     stream_object.stream = None
