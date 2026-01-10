@@ -8,6 +8,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Updated generation to use the v1/chat/completions endpoint instead of the
+  Ollama-specific API.
+
+### Fixed
+
+- Streams sent by the server are now correctly parsed according to the SSE web
+  API
+
 ## [0.4.2] - 2025-12-27
 
 ### Added
