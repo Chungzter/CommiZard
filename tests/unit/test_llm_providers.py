@@ -208,6 +208,26 @@ def test_stream_request_init(
         assert obj.response == mock_resp
 
 
+@pytest.mark.parametrize(
+    "encoding, expected",
+    [(None, "utf-8"), ("ANSI", "ANSI"), ("utf-8", "utf-8")],
+)
+@patch("commizard.llm_providers.requests.request")
+def test_stream_request_init_correct_encoding(mock_request, encoding, expected):
+    url = "https://test.com"
+    method = "TEST"
+    mock_resp = Mock()
+    mock_resp.status_code = 200
+    mock_resp.encoding = encoding
+    mock_request.return_value = mock_resp
+
+    obj = llm.StreamRequest(method, url)
+    mock_request.assert_called_once_with(
+        method, url, timeout=(0.5, 5), stream=True
+    )
+    assert obj.response.encoding == expected
+
+
 @pytest.mark.parametrize("exception", [ValueError, llm.StreamError, None])
 def test_stream_request_context_manager(exception):
     stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
