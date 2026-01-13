@@ -30,6 +30,50 @@ Here is the diff:
 """
 
 
+class HttpRequest:
+    def __init__(self, method: str, url: str, **kwargs):
+        resp = None
+        method = method.upper()  # All methods are upper case
+        try:
+            if method in ("GET", "POST", "PUT", "PATCH", "DELETE"):
+                r = requests.request(method, url, **kwargs)  # noqa: S113
+            else:
+                raise ValueError(f"{method} is not a valid method.")
+            try:
+                resp = r.json()
+            except requests.exceptions.JSONDecodeError:
+                resp = r.text
+            ret_val = r.status_code
+        except requests.ConnectionError:
+            ret_val = -1
+        except requests.HTTPError:
+            ret_val = -2
+        except requests.TooManyRedirects:
+            ret_val = -3
+        except requests.Timeout:
+            ret_val = -4
+        except requests.RequestException:
+            ret_val = -5
+
+        self.response = resp
+        # if the value is less than zero, there's something wrong.
+        self.return_code = ret_val
+
+    def is_error(self) -> bool:
+        return self.return_code < 0
+
+    def err_message(self) -> str:
+        if not self.is_error():
+            return ""
+        err_dict = {
+            -1: "can't connect to the server",
+            -2: "HTTP error occurred",
+            -3: "too many redirects",
+            -4: "the request timed out",
+        }
+        return err_dict[self.return_code]
+
+
 class HttpResponse:
     def __init__(self, response, return_code):
         self.response = response
