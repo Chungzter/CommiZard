@@ -70,6 +70,7 @@ class HttpRequest:
             -2: "HTTP error occurred",
             -3: "too many redirects",
             -4: "the request timed out",
+            -5: "There was an ambiguous error",
         }
         return err_dict[self.return_code]
 

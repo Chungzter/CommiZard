@@ -19,6 +19,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   API
 - Streaming requests now automatically get a timeout to prevent them from
   hanging forever
+- Fixed potential KeyError exception raised from ambiguous errors
 
 ## [0.4.2] - 2025-12-27
 
