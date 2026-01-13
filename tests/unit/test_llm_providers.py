@@ -10,6 +10,81 @@ from commizard.llm_providers import HttpResponse
 
 
 @pytest.mark.parametrize(
+    "method, raises",
+    [
+        ("get", False),
+        ("DELETE", False),
+        ("doesn't exist", True),
+    ],
+)
+@patch("commizard.llm_providers.requests.request")
+def test_http_request_init_method(mock_request, method, raises):
+    url = "http://example.com"
+
+    if raises:
+        with pytest.raises(
+            ValueError, match=f"{method.upper()} is not a valid method."
+        ):
+            _ = llm.HttpRequest(method, url)
+        mock_request.assert_not_called()
+    else:
+        _ = llm.HttpRequest(method, url)
+        mock_request.assert_called_once_with(method.upper(), url)
+
+
+@pytest.mark.parametrize(
+    "is_text, resp",
+    [
+        (False, {"test": True, "content": "this is a JSON response"}),
+        (True, "This is a text response"),
+    ],
+)
+@patch("commizard.llm_providers.requests.request")
+def test_http_request_init_correct_behavior(mock_request, is_text, resp):
+    url = "http://example.com"
+    method = "POST"
+    mock = Mock()
+    mock.status_code = 123456
+    if is_text:
+        mock.json.side_effect = requests.exceptions.JSONDecodeError(
+            "err", "doc", 0
+        )
+        mock.text = resp
+    else:
+        mock.json.return_value = resp
+    mock_request.return_value = mock
+
+    obj = llm.HttpRequest(method, url, testkwargs="testing")
+    mock_request.assert_called_once_with(method, url, testkwargs="testing")
+    assert obj.response == resp
+    assert obj.return_code == 123456
+
+
+@pytest.mark.parametrize(
+    "exception, expected_retval",
+    [
+        (requests.ConnectionError, -1),
+        (requests.HTTPError, -2),
+        (requests.TooManyRedirects, -3),
+        (requests.Timeout, -4),
+        (requests.RequestException, -5),
+    ],
+)
+@patch("commizard.llm_providers.requests.request")
+def test_http_request_init_requests_exceptions(
+    mock_request, exception, expected_retval
+):
+    url = "http://example.com"
+    method = "PATCH"
+    mock_request.side_effect = exception
+
+    obj = llm.HttpRequest(method, url)
+    mock_request.assert_called_once_with(method, url)
+    assert obj.response is None
+    assert obj.return_code == expected_retval
+
+
+@pytest.mark.parametrize(
     "response, return_code, expected_is_error, expected_err_message",
     [
         # Non-error responses
