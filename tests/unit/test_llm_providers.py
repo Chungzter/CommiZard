@@ -18,8 +18,8 @@ from commizard.llm_providers import HttpResponse
     ],
 )
 @patch("commizard.llm_providers.requests.request")
-def test_http_request_init_method(mock_request, method, raises):
-    url = "http://example.com"
+def test_http_request_init_method_processing(mock_request, method, raises):
+    url = "https://example.com"
 
     if raises:
         with pytest.raises(
@@ -40,8 +40,8 @@ def test_http_request_init_method(mock_request, method, raises):
     ],
 )
 @patch("commizard.llm_providers.requests.request")
-def test_http_request_init_correct_behavior(mock_request, is_text, resp):
-    url = "http://example.com"
+def test_http_request_no_raises(mock_request, is_text, resp):
+    url = "https://example.com"
     method = "POST"
     mock = Mock()
     mock.status_code = 123456
@@ -58,23 +58,25 @@ def test_http_request_init_correct_behavior(mock_request, is_text, resp):
     mock_request.assert_called_once_with(method, url, testkwargs="testing")
     assert obj.response == resp
     assert obj.return_code == 123456
+    assert not obj.is_error()
+    assert obj.err_message() == ""
 
 
 @pytest.mark.parametrize(
-    "exception, expected_retval",
+    "exception, expected_retval, err_str",
     [
-        (requests.ConnectionError, -1),
-        (requests.HTTPError, -2),
-        (requests.TooManyRedirects, -3),
-        (requests.Timeout, -4),
-        (requests.RequestException, -5),
+        (requests.ConnectionError, -1, "can't connect to the server"),
+        (requests.HTTPError, -2, "HTTP error occurred"),
+        (requests.TooManyRedirects, -3, "too many redirects"),
+        (requests.Timeout, -4, "the request timed out"),
+        (requests.RequestException, -5, "There was an ambiguous error"),
     ],
 )
 @patch("commizard.llm_providers.requests.request")
-def test_http_request_init_requests_exceptions(
-    mock_request, exception, expected_retval
+def test_http_request_requestslib_exceptions(
+    mock_request, exception, expected_retval, err_str
 ):
-    url = "http://example.com"
+    url = "https://example.com"
     method = "PATCH"
     mock_request.side_effect = exception
 
@@ -82,6 +84,8 @@ def test_http_request_init_requests_exceptions(
     mock_request.assert_called_once_with(method, url)
     assert obj.response is None
     assert obj.return_code == expected_retval
+    assert obj.is_error()
+    assert obj.err_message() == err_str
 
 
 @pytest.mark.parametrize(
