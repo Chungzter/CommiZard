@@ -217,7 +217,7 @@ def list_locals() -> list[list[str]] | None:
     return a list of available local AI models
     """
     url = config.LLM_URL + "api/tags"
-    r = http_request("GET", url, timeout=0.3)
+    r = HttpRequest("GET", url, timeout=0.3)
     if r.is_error():
         return None
     r = r.response["models"]

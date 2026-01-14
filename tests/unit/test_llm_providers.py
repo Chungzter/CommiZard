@@ -427,10 +427,10 @@ def test_init_model_list(mock_list, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "is_error, response, expected_result, expect_error",
+    "is_error, response, expected_result",
     [
         # http_request returns error
-        (True, None, [], True),
+        (True, None, None),
         # http_request succeeds with models
         (
             False,
@@ -447,27 +447,23 @@ def test_init_model_list(mock_list, monkeypatch):
                 ]
             },
             [["model1", "5b"], ["model2", "135m"]],
-            False,
         ),
         # http_request succeeds but no models
-        (False, {"models": []}, [], False),
+        (False, {"models": []}, []),
     ],
 )
-@patch("commizard.llm_providers.http_request")
+@patch("commizard.llm_providers.HttpRequest")
 def test_list_locals(
     mock_http_request,
     is_error,
     response,
     expected_result,
-    expect_error,
 ):
-    fake_response = Mock()
-    fake_response.is_error.return_value = is_error
-    fake_response.response = response
-    mock_http_request.return_value = fake_response
+    mock_http_request.return_value.is_error.return_value = is_error
+    mock_http_request.return_value.response = response
 
     result = llm.list_locals()
-    if expect_error:
+    if is_error:
         assert result is None
     else:
         assert result == expected_result
