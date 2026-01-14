@@ -199,6 +199,22 @@ class StreamRequest:
             ) from None
 
 
+def list_locals() -> list[list[str]] | None:
+    """
+    return a list of available local AI models
+    """
+    url = config.LLM_URL + "api/tags"
+    r = HttpRequest("GET", url, timeout=0.3)
+    if r.is_error() or r.response is None:
+        return None
+
+    # TODO: This function is error-prone and will cause trouble if we blindly
+    #       use subscription to access members without checking the response
+    #       type.
+    r = r.response["models"]
+    return [[model["name"], model["details"]["parameter_size"]] for model in r]
+
+
 def init_model_list() -> None:
     """
     Initialize the list of available models inside the available_models global
@@ -210,18 +226,6 @@ def init_model_list() -> None:
         available_models = None
     else:
         available_models = [member[0] for member in models]
-
-
-def list_locals() -> list[list[str]] | None:
-    """
-    return a list of available local AI models
-    """
-    url = config.LLM_URL + "api/tags"
-    r = HttpRequest("GET", url, timeout=0.3)
-    if r.is_error():
-        return None
-    r = r.response["models"]
-    return [[model["name"], model["details"]["parameter_size"]] for model in r]
 
 
 def select_model(select_str: str) -> tuple[int, str]:

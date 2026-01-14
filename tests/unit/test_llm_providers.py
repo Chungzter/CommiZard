@@ -408,24 +408,6 @@ def test_stream_request_dunder_iter(error: tuple[bool, str]):
         assert type(stream_object.stream) is type(iter([]))
 
 
-@patch("commizard.llm_providers.list_locals")
-def test_init_model_list(mock_list, monkeypatch):
-    monkeypatch.setattr(llm, "available_models", None)
-
-    # first case: None returned by list_locals()
-    mock_list.return_value = None
-    llm.init_model_list()
-    mock_list.assert_called_once()
-    assert llm.available_models is None
-
-    # second case: correct output from list_locals()
-    monkeypatch.setattr(llm, "available_models", None)
-    mock_list.return_value = [["gpt-1", "10b"], ["gpt-2", "5b"]]
-    llm.init_model_list()
-    mock_list.assert_called()
-    assert llm.available_models == ["gpt-1", "gpt-2"]
-
-
 @pytest.mark.parametrize(
     "is_error, response, expected_result",
     [
@@ -450,6 +432,8 @@ def test_init_model_list(mock_list, monkeypatch):
         ),
         # http_request succeeds but no models
         (False, {"models": []}, []),
+        # Bizzare case where There isn't any error but response is None
+        (False, None, None),
     ],
 )
 @patch("commizard.llm_providers.HttpRequest")
@@ -468,6 +452,24 @@ def test_list_locals(
     else:
         assert result == expected_result
     mock_http_request.assert_called_once()
+
+
+@patch("commizard.llm_providers.list_locals")
+def test_init_model_list(mock_list, monkeypatch):
+    monkeypatch.setattr(llm, "available_models", None)
+
+    # first case: None returned by list_locals()
+    mock_list.return_value = None
+    llm.init_model_list()
+    mock_list.assert_called_once()
+    assert llm.available_models is None
+
+    # second case: correct output from list_locals()
+    monkeypatch.setattr(llm, "available_models", None)
+    mock_list.return_value = [["gpt-1", "10b"], ["gpt-2", "5b"]]
+    llm.init_model_list()
+    mock_list.assert_called()
+    assert llm.available_models == ["gpt-1", "gpt-2"]
 
 
 @patch("commizard.llm_providers.http_request")
