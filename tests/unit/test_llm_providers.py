@@ -472,10 +472,13 @@ def test_init_model_list(mock_list, monkeypatch):
     assert llm.available_models == ["gpt-1", "gpt-2"]
 
 
-@patch("commizard.llm_providers.http_request")
+@patch("commizard.llm_providers.HttpRequest")
 def test_request_load_model(mock_http_request, monkeypatch):
     monkeypatch.setattr(llm.config, "LLM_URL", "TEST/")
-    retval = HttpResponse("response", 420)
+    retval = Mock()
+    retval.response = "response"
+    retval.return_code = 420
+    mock_url.return_value = "localhost"
     mock_http_request.return_value = retval
     assert llm.request_load_model("gpt") == retval
     mock_http_request.assert_called_once_with(
@@ -484,7 +487,59 @@ def test_request_load_model(mock_http_request, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "initial_model, response_is_error, expected_model_after, should_call_success, should_call_error",
+    "model_name, load_res, expected_return, selected_model_result",
+    [
+        (
+            "gpt",
+            HttpResponse("test", -1),
+            (
+                1,
+                f"failed to load gpt: {HttpResponse(str(1), -1).err_message()}",
+            ),
+            None,
+        ),
+        (
+            "llama",
+            HttpResponse("404", 404),
+            (1, llm.get_error_message(404)),
+            None,
+        ),
+        (
+            "smollm",
+            HttpResponse({"done_reason": "load"}, 200),
+            (0, "smollm loaded."),
+            "smollm",
+        ),
+        (
+            "fara",
+            HttpResponse({"done_reason": "spooky error"}, 200),
+            (
+                1,
+                "There was an unknown problem loading the model.\n"
+                " Please report this issue.",
+            ),
+            None,
+        ),
+    ],
+)
+@patch("commizard.llm_providers.request_load_model")
+def test_select_model(
+    mock_load,
+    model_name,
+    load_res,
+    expected_return,
+    selected_model_result,
+    monkeypatch,
+):
+    monkeypatch.setattr(llm, "selected_model", None)
+    mock_load.return_value = load_res
+    assert llm.select_model(model_name) == expected_return
+    assert llm.selected_model == selected_model_result
+
+
+@pytest.mark.parametrize(
+    "initial_model, response_is_error, expected_model_after,"
+    "should_call_success, should_call_error",
     [
         # No model loaded
         (None, False, None, False, False),
@@ -842,54 +897,3 @@ def test_generate_none_selected(mock_http_request, monkeypatch):
     res = llm.generate("Test prompt")
     mock_http_request.assert_not_called()
     assert res == (1, err_str)
-
-
-@pytest.mark.parametrize(
-    "model_name, load_res, expected_return, selected_model_result",
-    [
-        (
-            "gpt",
-            HttpResponse("test", -1),
-            (
-                1,
-                f"failed to load gpt: {HttpResponse(str(1), -1).err_message()}",
-            ),
-            None,
-        ),
-        (
-            "llama",
-            HttpResponse("404", 404),
-            (1, llm.get_error_message(404)),
-            None,
-        ),
-        (
-            "smollm",
-            HttpResponse({"done_reason": "load"}, 200),
-            (0, "smollm loaded."),
-            "smollm",
-        ),
-        (
-            "fara",
-            HttpResponse({"done_reason": "spooky error"}, 200),
-            (
-                1,
-                "There was an unknown problem loading the model.\n"
-                " Please report this issue.",
-            ),
-            None,
-        ),
-    ],
-)
-@patch("commizard.llm_providers.request_load_model")
-def test_select_model(
-    mock_load,
-    model_name,
-    load_res,
-    expected_return,
-    selected_model_result,
-    monkeypatch,
-):
-    monkeypatch.setattr(llm, "selected_model", None)
-    mock_load.return_value = load_res
-    assert llm.select_model(model_name) == expected_return
-    assert llm.selected_model == selected_model_result

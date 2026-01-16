@@ -228,6 +228,20 @@ def init_model_list() -> None:
         available_models = [member[0] for member in models]
 
 
+def request_load_model(model_name: str) -> HttpRequest:
+    """
+    Send a request to load the local model into RAM
+    Args:
+        model_name: name of the model to load
+
+    Returns:
+        a HttpRequest object
+    """
+    payload = {"model": model_name}
+    url = config.LLM_URL + "api/generate"
+    return HttpRequest("POST", url, json=payload, timeout=(0.3, 600))
+
+
 def select_model(select_str: str) -> tuple[int, str]:
     """
     Select the local model for use
@@ -251,20 +265,6 @@ def select_model(select_str: str) -> tuple[int, str]:
             "There was an unknown problem loading the model.\n"
             " Please report this issue.",
         )
-
-
-def request_load_model(model_name: str) -> HttpResponse:
-    """
-    Send a request to load the local model into RAM
-    Args:
-        model_name: name of the model to load
-
-    Returns:
-        a HttpResponse object
-    """
-    payload = {"model": model_name}
-    url = config.LLM_URL + "api/generate"
-    return http_request("POST", url, json=payload, timeout=(0.3, 600))
 
 
 def unload_model() -> None:
