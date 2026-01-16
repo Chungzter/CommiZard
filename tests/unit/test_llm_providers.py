@@ -6,7 +6,6 @@ import pytest
 import requests
 
 from commizard import llm_providers as llm
-from commizard.llm_providers import HttpResponse
 
 
 @pytest.mark.parametrize(
@@ -491,28 +490,28 @@ def test_request_load_model(mock_http_request, monkeypatch):
     [
         (
             "gpt",
-            HttpResponse("test", -1),
+            ("test", -1),
             (
                 1,
-                f"failed to load gpt: {HttpResponse(str(1), -1).err_message()}",
+                "failed to load gpt: can't connect to the server",
             ),
             None,
         ),
         (
             "llama",
-            HttpResponse("404", 404),
+            ("404", 404),
             (1, llm.get_error_message(404)),
             None,
         ),
         (
             "smollm",
-            HttpResponse({"done_reason": "load"}, 200),
+            ({"done_reason": "load"}, 200),
             (0, "smollm loaded."),
             "smollm",
         ),
         (
             "fara",
-            HttpResponse({"done_reason": "spooky error"}, 200),
+            ({"done_reason": "spooky error"}, 200),
             (
                 1,
                 "There was an unknown problem loading the model.\n"
@@ -532,7 +531,9 @@ def test_select_model(
     monkeypatch,
 ):
     monkeypatch.setattr(llm, "selected_model", None)
-    mock_load.return_value = load_res
+    retval = llm.HttpRequest.__new__(llm.HttpRequest)
+    retval.response, retval.return_code = load_res
+    mock_load.return_value = retval
     assert llm.select_model(model_name) == expected_return
     assert llm.selected_model == selected_model_result
 
