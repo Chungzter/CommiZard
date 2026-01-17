@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import Mock, call, patch
 
 import pytest
 import requests
@@ -865,7 +865,7 @@ def test_stream_generate_stream_error(
         ),
     ],
 )
-@patch("commizard.llm_providers.http_request")
+@patch("commizard.llm_providers.HttpRequest")
 def test_generate(
     mock_http_request,
     is_error,
@@ -875,7 +875,7 @@ def test_generate(
     expected,
     monkeypatch,
 ):
-    fake_response = MagicMock()
+    fake_response = Mock()
     fake_response.is_error.return_value = is_error
     fake_response.return_code = return_code
     fake_response.response = response_dict
@@ -890,7 +890,7 @@ def test_generate(
     assert result == expected
 
 
-@patch("commizard.llm_providers.http_request")
+@patch("commizard.llm_providers.HttpRequest")
 def test_generate_none_selected(mock_http_request, monkeypatch):
     monkeypatch.setattr(llm, "selected_model", None)
     err_str = (
