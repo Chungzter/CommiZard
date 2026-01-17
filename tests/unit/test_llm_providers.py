@@ -552,7 +552,7 @@ def test_select_model(
 )
 @patch("commizard.llm_providers.output.print_success")
 @patch("commizard.llm_providers.output.print_error")
-@patch("commizard.llm_providers.http_request")
+@patch("commizard.llm_providers.HttpRequest")
 def test_unload_model(
     mock_http_request,
     mock_print_error,

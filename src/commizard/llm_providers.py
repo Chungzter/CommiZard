@@ -277,7 +277,7 @@ def unload_model() -> None:
         return
     url = config.gen_request_url()
     payload = {"model": selected_model, "keep_alive": 0}
-    response = http_request("POST", url, json=payload)
+    response = HttpRequest("POST", url, json=payload)
     if response.is_error():
         output.print_error(f"Failed to unload model: {response.err_message()}")
     else:
