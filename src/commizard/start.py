@@ -90,7 +90,7 @@ def local_ai_available() -> bool:
     """
     # Very rare for a server to run on this port AND have this api endpoint.
     url = "http://localhost:11434/api/version"
-    r = llm_providers.http_request("get", url, timeout=0.3)
+    r = llm_providers.HttpRequest("GET", url, timeout=0.3)
     return (
         (r.return_code == 200)
         and (isinstance(r.response, dict))

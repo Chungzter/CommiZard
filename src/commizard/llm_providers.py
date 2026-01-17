@@ -29,7 +29,10 @@ formatting).
 Here is the diff:
 """
 
-
+# TODO: Currently, response attribute is of type [dict | str | None] which makes
+#       subscripting for values or using the get method error-prone, as shown by
+#       the mypy linter. We should change this behavior with minimal change to
+#       the users of this class.
 class HttpRequest:
     def __init__(self, method: str, url: str, **kwargs):
         resp = None
@@ -208,9 +211,6 @@ def list_locals() -> list[list[str]] | None:
     if r.is_error() or r.response is None:
         return None
 
-    # TODO: This function is error-prone and will cause trouble if we blindly
-    #       use subscription to access members without checking the response
-    #       type.
     r = r.response["models"]
     return [[model["name"], model["details"]["parameter_size"]] for model in r]
 
