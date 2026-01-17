@@ -305,7 +305,8 @@ def get_error_message(status_code: int) -> str:
     """
     error_messages = {
         400: (
-            "Bad Request - The request was malformed or contains invalid parameters.\n"
+            "Bad Request - The request was malformed or contains invalid"
+            " parameters.\n"
         ),
         403: (
             "Forbidden - Access to Ollama was denied.\n"
@@ -341,16 +342,19 @@ def get_error_message(status_code: int) -> str:
     if 400 <= status_code < 500:
         # Client errors (4xx)
         return (
-            f"Error {status_code}: Client Error - This appears to be a configuration or request issue.\n"
+            f"Error {status_code}: Client Error - This appears to be a "
+            "configuration or request issue.\n"
             "Suggestions:\n"
             "  • Verify your request parameters and model name\n"
-            "  • Check Ollama documentation: https://github.com/ollama/ollama/blob/main/docs/api.md\n"
+            "  • Check Ollama documentation: "
+            "https://github.com/ollama/ollama/blob/main/docs/api.md\n"
             "  • Review your commizard configuration"
         )
     elif 500 <= status_code < 600:
         # Server errors (5xx)
         return (
-            f"Error {status_code}: Server Error - This appears to be an issue with the Ollama service.\n"
+            f"Error {status_code}: Server Error - This appears to be an issue "
+            "with the Ollama service.\n"
             "Suggestions:\n"
             "  • Try restarting Ollama: ollama serve\n"
             "  • Check Ollama logs for more information\n"
@@ -435,7 +439,8 @@ def generate(prompt: str) -> tuple[int, str]:
     if selected_model is None:
         return 1, (
             "No model selected. You must use the start command to specify "
-            "which model to use before generating.\nExample: start model_name"
+            "which model to use before generating.\n"
+            "Example: start model_name"
         )
     head = {
         "Content-Type": "application/json",

@@ -826,10 +826,12 @@ def test_stream_generate_stream_error(
             (
                 500,
                 "Error 500: Internal Server Error - Ollama encountered an "
-                "unexpected error.\nSuggestions:\n  • The model may have run"
-                " out of memory (RAM/VRAM)\n  • Try restarting Ollama: ollama "
-                "serve\n  • Check Ollama logs for detailed error information\n "
-                " • Consider using a smaller model if resources are limited",
+                "unexpected error.\n"
+                "Suggestions:\n"
+                "  • The model may have run out of memory (RAM/VRAM)\n"
+                "  • Try restarting Ollama: ollama serve\n"
+                "  • Check Ollama logs for detailed error information\n"
+                "  • Consider using a smaller model if resources are limited",
             ),
         ),
         # real world test case
