@@ -29,6 +29,7 @@ formatting).
 Here is the diff:
 """
 
+
 # TODO: Currently, response attribute is of type [dict | str | None] which makes
 #       subscripting for values or using the get method error-prone, as shown by
 #       the mypy linter. We should change this behavior with minimal change to
@@ -76,53 +77,6 @@ class HttpRequest:
             -5: "There was an ambiguous error",
         }
         return err_dict[self.return_code]
-
-
-class HttpResponse:
-    def __init__(self, response, return_code):
-        self.response = response
-        # if the value is less than zero, there's something wrong.
-        self.return_code = return_code
-
-    def is_error(self) -> bool:
-        return self.return_code < 0
-
-    def err_message(self) -> str:
-        if not self.is_error():
-            return ""
-        err_dict = {
-            -1: "can't connect to the server",
-            -2: "HTTP error occurred",
-            -3: "too many redirects",
-            -4: "the request timed out",
-        }
-        return err_dict[self.return_code]
-
-
-def http_request(method: str, url: str, **kwargs) -> HttpResponse:
-    resp = None
-    method = method.upper()  # All methods are upper case
-    try:
-        if method in ("GET", "POST", "PUT", "PATCH", "DELETE"):
-            r = requests.request(method, url, **kwargs)  # noqa: S113
-        else:
-            raise ValueError(f"{method} is not a valid method.")
-        try:
-            resp = r.json()
-        except requests.exceptions.JSONDecodeError:
-            resp = r.text
-        ret_val = r.status_code
-    except requests.ConnectionError:
-        ret_val = -1
-    except requests.HTTPError:
-        ret_val = -2
-    except requests.TooManyRedirects:
-        ret_val = -3
-    except requests.Timeout:
-        ret_val = -4
-    except requests.RequestException:
-        ret_val = -5
-    return HttpResponse(resp, ret_val)
 
 
 class StreamError(Exception):
