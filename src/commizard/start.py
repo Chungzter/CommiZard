@@ -17,10 +17,6 @@ text_banner = r"""
 
 """
 
-# Gradient colors
-start_color = Color.parse("#535147")
-end_color = Color.parse("#8F00FF")
-
 
 def gradient_text(text: str, start_color: Color, end_color: Color) -> str:
     """
@@ -68,6 +64,8 @@ def print_welcome(color: bool) -> None:
     Print the welcome screen. Right now it's the ASCII art of the project's
     name.
     """
+    start_color = Color.parse("#535147")
+    end_color = Color.parse("#8F00FF")
     console = Console(color_system="auto" if color else None)
     if console.color_system in ("truecolor", "256"):
         console.print(gradient_text(text_banner, start_color, end_color))
