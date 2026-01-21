@@ -17,7 +17,9 @@ text_banner = r"""
 
 """
 
-
+# TODO: There are some other optimizations:
+#       1. skip whitespace
+#       2. store the [] value before entering the inner loop
 def gradient_text(text: str, start_color: Color, end_color: Color) -> str:
     """
     Apply a horizontal gradient across the given ASCII art text.
@@ -32,29 +34,33 @@ def gradient_text(text: str, start_color: Color, end_color: Color) -> str:
     """
     lines = text.splitlines()
     total_chars = max(len(line) for line in lines)
-    result_lines = []
+    result_lines = ["" for _ in lines]
+
     if not start_color.triplet or not end_color.triplet:
         return text  # Return original text if colors are not valid
-    for line in lines:
-        colored_line = ""
-        for i, char in enumerate(line):
-            r = int(
-                start_color.triplet[0]
-                + (end_color.triplet[0] - start_color.triplet[0])
-                * (i / total_chars)
-            )
-            g = int(
-                start_color.triplet[1]
-                + (end_color.triplet[1] - start_color.triplet[1])
-                * (i / total_chars)
-            )
-            b = int(
-                start_color.triplet[2]
-                + (end_color.triplet[2] - start_color.triplet[2])
-                * (i / total_chars)
-            )
-            colored_line += f"[#{r:02x}{g:02x}{b:02x}]{char}"
-        result_lines.append(colored_line)
+
+    for i in range(total_chars):
+        # Calculate RGB gradient values
+        r = int(
+            start_color.triplet[0]
+            + (end_color.triplet[0] - start_color.triplet[0])
+            * (i / total_chars)
+        )
+        g = int(
+            start_color.triplet[1]
+            + (end_color.triplet[1] - start_color.triplet[1])
+            * (i / total_chars)
+        )
+        b = int(
+            start_color.triplet[2]
+            + (end_color.triplet[2] - start_color.triplet[2])
+            * (i / total_chars)
+        )
+        for j in range(len(lines)):
+            # Don't index into shorter lines
+            if i >= len(lines[j]):
+                continue
+            result_lines[j] += f"[#{r:02x}{g:02x}{b:02x}]{lines[j][i]}"
     return "\n".join(result_lines)
 
 
