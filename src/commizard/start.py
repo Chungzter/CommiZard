@@ -17,9 +17,9 @@ text_banner = r"""
 
 """
 
+
 # TODO: There are some other optimizations:
 #       1. skip whitespace
-#       2. store the [] value before entering the inner loop
 def gradient_text(text: str, start_color: Color, end_color: Color) -> str:
     """
     Apply a horizontal gradient across the given ASCII art text.
@@ -56,11 +56,12 @@ def gradient_text(text: str, start_color: Color, end_color: Color) -> str:
             + (end_color.triplet[2] - start_color.triplet[2])
             * (i / total_chars)
         )
+        color_str = f"[#{r:02x}{g:02x}{b:02x}]"
         for j in range(len(lines)):
             # Don't index into shorter lines
             if i >= len(lines[j]):
                 continue
-            result_lines[j] += f"[#{r:02x}{g:02x}{b:02x}]{lines[j][i]}"
+            result_lines[j] += color_str + lines[j][i]
     return "\n".join(result_lines)
 
 
