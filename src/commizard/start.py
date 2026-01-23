@@ -18,8 +18,6 @@ text_banner = r"""
 """
 
 
-# TODO: There are some other optimizations:
-#       1. skip whitespace
 def gradient_text(text: str, start_color: Color, end_color: Color) -> str:
     """
     Apply a horizontal gradient across the given ASCII art text.
@@ -61,7 +59,11 @@ def gradient_text(text: str, start_color: Color, end_color: Color) -> str:
             # Don't index into shorter lines
             if i >= len(lines[j]):
                 continue
-            result_lines[j] += color_str + lines[j][i]
+            result_lines[j] += (
+                lines[j][i]
+                if lines[j][i].isspace() # don't add RGB string for whitespace
+                else (color_str + lines[j][i])
+            )
     return "\n".join(result_lines)
 
 
