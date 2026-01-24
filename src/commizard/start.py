@@ -61,7 +61,7 @@ def gradient_text(text: str, start_color: Color, end_color: Color) -> str:
                 continue
             result_lines[j] += (
                 lines[j][i]
-                if lines[j][i].isspace() # don't add RGB string for whitespace
+                if lines[j][i].isspace()  # don't add RGB string for whitespace
                 else (color_str + lines[j][i])
             )
     return "\n".join(result_lines)
