@@ -183,15 +183,14 @@ def test_list_locals(
     mock_http_request.assert_called_once()
 
 
-@patch("commizard.llm_providers.config.gen_request_url")
 @patch("commizard.llm_providers.http_request")
-def test_request_load_model(mock_http_request, mock_url, monkeypatch):
+def test_request_load_model(mock_http_request, monkeypatch):
+    monkeypatch.setattr(llm.config, "LLM_URL", "TEST/")
     retval = HttpResponse("response", 420)
-    mock_url.return_value = "localhost"
     mock_http_request.return_value = retval
     assert llm.request_load_model("gpt") == retval
     mock_http_request.assert_called_once_with(
-        "POST", "localhost", json={"model": "gpt"}, timeout=(0.3, 600)
+        "POST", "TEST/api/generate", json={"model": "gpt"}, timeout=(0.3, 600)
     )
 
 
@@ -286,11 +285,25 @@ def test_get_error_message(error_code, expected_result):
             "can't connect to the server",
             (1, "can't connect to the server"),
         ),
-        (False, 200, {"response": "Hello world"}, None, (0, "Hello world")),
         (
             False,
             200,
-            {"response": "  Hello world\n"},
+            {
+                "choices": [
+                    {"message": {"role": "user", "content": "Hello world"}}
+                ]
+            },
+            None,
+            (0, "Hello world"),
+        ),
+        (
+            False,
+            200,
+            {
+                "choices": [
+                    {"message": {"role": "user", "content": "  Hello world\n"}}
+                ]
+            },
             None,
             (0, "  Hello world\n"),
         ),
@@ -301,8 +314,41 @@ def test_get_error_message(error_code, expected_result):
             None,
             (
                 500,
-                "Error 500: Internal Server Error - Ollama encountered an unexpected error.\nSuggestions:\n  • The model may have run out of memory (RAM/VRAM)\n  • Try restarting Ollama: ollama serve\n  • Check Ollama logs for detailed error information\n  • Consider using a smaller model if resources are limited",
+                "Error 500: Internal Server Error - Ollama encountered an "
+                "unexpected error.\nSuggestions:\n  • The model may have run"
+                " out of memory (RAM/VRAM)\n  • Try restarting Ollama: ollama "
+                "serve\n  • Check Ollama logs for detailed error information\n "
+                " • Consider using a smaller model if resources are limited",
             ),
+        ),
+        # real world test case
+        (
+            False,
+            200,
+            {
+                "id": "chatcmpl-406",
+                "object": "chat.completion",
+                "created": 1767616167,
+                "model": "smollm:135m",
+                "system_fingerprint": "fp_ollama",
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {
+                            "role": "assistant",
+                            "content": "Hello! How can I help you today?",
+                        },
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 11,
+                    "completion_tokens": 10,
+                    "total_tokens": 21,
+                },
+            },
+            None,
+            (0, "Hello! How can I help you today?"),
         ),
     ],
 )

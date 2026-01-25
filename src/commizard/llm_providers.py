@@ -213,7 +213,7 @@ def request_load_model(model_name: str) -> HttpResponse:
         a HttpResponse object
     """
     payload = {"model": model_name}
-    url = config.gen_request_url()
+    url = config.LLM_URL + "api/generate"
     return http_request("POST", url, json=payload, timeout=(0.3, 600))
 
 
@@ -314,32 +314,65 @@ def get_error_message(status_code: int) -> str:
         )
 
 
-# TODO: see issue #15
 def stream_generate(prompt: str) -> tuple[int, str]:
+    """
+    Generate LLM response by streaming the generated text.
+    Not: This function prints to stdout and also ignores reasoning output
+    Args:
+        prompt: The prompt to send to the LLM.
+
+    Returns:
+        a tuple of the return code and the response. The return code is 0 if the
+        response is ok, 1 otherwise. The response is the error message if the
+        request fails and the return code is 1.
+    """
     url = config.gen_request_url()
-    payload = {"model": selected_model, "prompt": prompt, "stream": True}
+    head = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ollama",
+    }
+    message = [{"role": "user", "content": prompt}]
+    payload = {"model": selected_model, "messages": message, "stream": True}
     res = ""
     try:
         with (
-            StreamRequest("POST", url, json=payload) as stream,
+            StreamRequest("POST", url, json=payload, headers=head) as stream,
             output.live_stream(),
         ):
             output.set_width(70)
-            for s in stream:
-                resp = json.loads(s)["response"]
-                res += resp
-                output.print_token(resp)
+            for raw in stream:
+                line = raw.strip()
 
-    except KeyError:
-        return 1, "couldn't find respond from JSON"
+                # it's whitespace or a comment
+                if not line or line.startswith(":"):
+                    continue
+
+                # It's not data
+                if not line.startswith("data:"):
+                    continue
+
+                line = line[5:].strip()
+                if line == "[DONE]":
+                    break
+
+                resp = json.loads(line)
+                delta = resp["choices"][0].get("delta", {})
+                if not delta:
+                    continue
+                delta = delta.get("content", "")
+                res += delta
+                output.print_token(delta)
+
+    except (KeyError, IndexError):
+        return 1, "Couldn't find response from JSON: Invalid output"
 
     except json.decoder.JSONDecodeError:
-        return 1, "couldn't decode JSON response"
+        return 1, "Couldn't decode JSON response"
 
     except StreamError as e:
         return 1, str(e)
 
-    return (0, res)
+    return 0, res
 
 
 def generate(prompt: str) -> tuple[int, str]:
@@ -358,12 +391,18 @@ def generate(prompt: str) -> tuple[int, str]:
             "No model selected. You must use the start command to specify "
             "which model to use before generating.\nExample: start model_name"
         )
-    payload = {"model": selected_model, "prompt": prompt, "stream": False}
-    r = http_request("POST", url, json=payload)
+    head = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ollama",
+    }
+    message = [{"role": "user", "content": prompt}]
+    payload = {"model": selected_model, "messages": message, "stream": False}
+    r = http_request("POST", url, json=payload, headers=head)
     if r.is_error():
         return 1, r.err_message()
     elif r.return_code == 200:
-        return 0, r.response.get("response")
+        res = r.response.get("choices")[0]["message"]["content"]
+        return 0, res
     else:
         error_msg = get_error_message(r.return_code)
         return r.return_code, error_msg

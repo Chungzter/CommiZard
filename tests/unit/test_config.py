@@ -8,4 +8,4 @@ def test_set_url(monkeypatch):
 
 
 def test_gen_request_url():
-    assert config.gen_request_url() == "http://127.0.0.1:11434/api/generate"
+    assert config.gen_request_url().endswith("v1/chat/completions")
