@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
 import requests
@@ -299,8 +299,8 @@ def test_stream_request_dunder_next_severed_connection():
     stream_object.stream = FakeStream()
     with pytest.raises(
         llm.StreamError,
-        match=r"The server closed the connection before "
-        "the full response was received.",
+        match=r"The server closed the connection before the full response was"
+        " received.",
     ):
         stream_object.__next__()
 
@@ -485,6 +485,109 @@ def test_unload_model(
 )
 def test_get_error_message(error_code, expected_result):
     assert llm.get_error_message(error_code) == expected_result
+
+
+@pytest.mark.parametrize(
+    "sse_events, expected_results",
+    [
+        # 1. Real output from OpenRouter.ai
+        (
+            [
+                ": OPENROUTER PROCESSING",
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":"Hello"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":"!"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                ": OPENROUTER PROCESSING",
+                "",
+                ": OPENROUTER PROCESSING",
+                "",
+                ": OPENROUTER PROCESSING",
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" How"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" can"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" I"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" help"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" you"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" today"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":"?"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                ": OPENROUTER PROCESSING",
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"stop","native_finish_reason":"stop","logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":15,"completion_tokens":10,"total_tokens":25,"cost":0,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"cost_details":{"upstream_inference_cost":0,"upstream_inference_prompt_cost":0,"upstream_inference_completions_cost":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0}}}',
+                "",
+                "data: [DONE]",
+                "",
+            ],
+            [
+                "",
+                "Hello",
+                "!",
+                " How",
+                " can",
+                " I",
+                " help",
+                " you",
+                " today",
+                "?",
+                "",
+                "",
+            ],
+        ),
+        # 2. edge cases
+        (
+            [
+                'data: {"choices":[{"index":0,"delta":{"content":"foo"}}]}',
+                'data: {"choices":[{"index":0}]}',
+                'data: {"choices":[{"index":0,"delta":{"content":"bacon"}}]}',
+                'data: {"choices":[{"index":0,"delta":{"not-content":"ham"}}]}',
+                'no data here, skip it',
+                'data: [DONE]',
+                "data: We shouldn't read these",
+                '[data: {"choices":[{"index":0,"delta":{"content":"eggs"}}]}',
+            ],
+            ["foo","bacon"]),
+    ],
+)
+@patch("commizard.llm_providers.output.print_token")
+@patch("commizard.llm_providers.output.set_stream_print_width")
+@patch("commizard.llm_providers.output.live_stream")
+@patch("commizard.llm_providers.StreamRequest")
+def test_stream_generate_no_error(
+    mock_stream_request,
+    mock_live_stream,
+    mock_set_stream_print_width,
+    mock_print_token,
+    sse_events,
+    expected_results,
+    monkeypatch,
+):
+    monkeypatch.setattr(llm, "selected_model", "mymodel")
+
+    stream_obj = MagicMock()
+    stream_obj.__iter__.return_value = iter(sse_events)
+    stream_obj.__enter__.return_value = stream_obj
+    mock_stream_request.return_value = stream_obj
+
+    res = llm.stream_generate("testing")
+    mock_stream_request.assert_called_once()
+    mock_live_stream.assert_called_once()
+    mock_set_stream_print_width.assert_called_once_with(70)
+    expected_calls = [call(i) for i in expected_results]
+    mock_print_token.assert_has_calls(expected_calls)
+    assert res == (0, "".join(expected_results))
 
 
 @pytest.mark.parametrize(
