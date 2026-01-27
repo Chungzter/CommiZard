@@ -553,12 +553,13 @@ def test_get_error_message(error_code, expected_result):
                 'data: {"choices":[{"index":0}]}',
                 'data: {"choices":[{"index":0,"delta":{"content":"bacon"}}]}',
                 'data: {"choices":[{"index":0,"delta":{"not-content":"ham"}}]}',
-                'no data here, skip it',
-                'data: [DONE]',
+                "no data here, skip it",
+                "data: [DONE]",
                 "data: We shouldn't read these",
                 '[data: {"choices":[{"index":0,"delta":{"content":"eggs"}}]}',
             ],
-            ["foo","bacon"]),
+            ["foo", "bacon"],
+        ),
     ],
 )
 @patch("commizard.llm_providers.output.print_token")
@@ -588,6 +589,57 @@ def test_stream_generate_no_error(
     expected_calls = [call(i) for i in expected_results]
     mock_print_token.assert_has_calls(expected_calls)
     assert res == (0, "".join(expected_results))
+
+
+@pytest.mark.parametrize(
+    "sse_event, expected_return",
+    [
+        # 1. Incorrect JSON responses
+        (
+            ['data: {"not_a_correct_name":[{"delta":{"content":"foo"}}]}'],
+            (1, "Couldn't find response from JSON: Invalid output"),
+        ),
+        (
+            ['data: {"choices":{"delta":{"content":"foo"}}}'],
+            (1, "Couldn't find response from JSON: Invalid output"),
+        ),
+        # 2. invalid response (Not JSON)
+        ([": We should skip this", "no exception should raise here"], (0, "")),
+        (
+            ['data: "choices" : "not_correct_JSON"'],
+            (1, "Couldn't decode JSON response"),
+        ),
+        (
+            ["data: someone's messing with us!"],
+            (1, "Couldn't decode JSON response"),
+        ),
+    ],
+)
+@patch("commizard.llm_providers.output.print_token")
+@patch("commizard.llm_providers.output.set_stream_print_width")
+@patch("commizard.llm_providers.output.live_stream")
+@patch("commizard.llm_providers.StreamRequest")
+def test_stream_generate_bad_response(
+    mock_stream_request,
+    mock_live_stream,
+    mock_set_stream_print_width,
+    mock_print_token,
+    sse_event,
+    expected_return,
+    monkeypatch,
+):
+    monkeypatch.setattr(llm, "selected_model", "mymodel")
+    stream_obj = MagicMock()
+    stream_obj.__iter__.return_value = iter(sse_event)
+    stream_obj.__enter__.return_value = stream_obj
+    mock_stream_request.return_value = stream_obj
+
+    res = llm.stream_generate("testing")
+    mock_stream_request.assert_called_once()
+    mock_live_stream.assert_called_once()
+    mock_set_stream_print_width.assert_called_once_with(70)
+    mock_print_token.assert_not_called()
+    assert res == expected_return
 
 
 @pytest.mark.parametrize(
