@@ -642,6 +642,17 @@ def test_stream_generate_bad_response(
     assert res == expected_return
 
 
+@patch("commizard.llm_providers.StreamRequest")
+def test_stream_generate_stream_error(
+    mock_stream_request,
+    monkeypatch,
+):
+    monkeypatch.setattr(llm, "selected_model", "mymodel")
+    mock_stream_request.side_effect = llm.StreamError("test exception")
+    res = llm.stream_generate("testing")
+    assert res == (1, "test exception")
+
+
 @pytest.mark.parametrize(
     "is_error, return_code, response_dict, err_msg, expected",
     [
