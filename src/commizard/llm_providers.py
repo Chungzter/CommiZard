@@ -344,10 +344,6 @@ def stream_generate(prompt: str) -> tuple[int, str]:
             for raw in stream:
                 line = raw.strip()
 
-                # it's whitespace or a comment
-                if not line or line.startswith(":"):
-                    continue
-
                 # It's not data
                 if not line.startswith("data:"):
                     continue
