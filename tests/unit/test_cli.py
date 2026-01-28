@@ -39,7 +39,7 @@ def test_handle_args(
         mock_exit.assert_not_called()
 
 
-def test_handle_no_banner(monkeypatch):
+def test_handle_args_no_banner(monkeypatch):
     monkeypatch.setattr(cli.sys, "argv", ["prog", "--no-banner"])
     monkeypatch.setattr(config, "SHOW_BANNER", True)
 
@@ -47,7 +47,7 @@ def test_handle_no_banner(monkeypatch):
     assert not config.SHOW_BANNER
 
 
-def test_handle_no_color(monkeypatch):
+def test_handle_args_no_color(monkeypatch):
     monkeypatch.setattr(cli.sys, "argv", ["prog", "--no-color"])
     monkeypatch.setattr(config, "USE_COLOR", True)
 

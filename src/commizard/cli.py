@@ -21,6 +21,9 @@ Options:
 """
 
 
+# Fixme: This function doesn't check for all possible arguments passed: if there
+#        are many arguments like: --no-color --no-banner --stream, it will just
+#        disable colors, but still print the banner and not stream the output.
 def handle_args():
     if len(sys.argv) < 2:
         return

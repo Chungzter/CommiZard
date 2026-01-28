@@ -254,27 +254,49 @@ def test_generate_message_err(mock_gen, mock_diff, mock_output, monkeypatch):
     assert commands.llm_providers.gen_message is None
 
 
+@pytest.mark.parametrize("should_stream", [True, False])
 @patch("commizard.commands.output.wrap_text")
 @patch("commizard.commands.output.print_generated")
 @patch("commizard.commands.git_utils.get_clean_diff")
+@patch("commizard.commands.llm_providers.stream_generate")
 @patch("commizard.commands.llm_providers.generate")
 def test_generate_message_success(
-    mock_gen, mock_diff, mock_output, mock_wrap, monkeypatch
+    mock_gen,
+    mock_stream_gen,
+    mock_diff,
+    mock_output,
+    mock_wrap,
+    should_stream,
+    monkeypatch,
 ):
     mock_diff.return_value = "some diff"
-    mock_gen.return_value = (0, "The generated commit's title\n\nThe body")
+    if should_stream:
+        mock_stream_gen.return_value = (
+            0,
+            "The generated commit's title\n\nThe body",
+        )
+    else:
+        mock_gen.return_value = (0, "The generated commit's title\n\nThe body")
+
     monkeypatch.setattr(commands.llm_providers, "generation_prompt", "PROMPT:")
     monkeypatch.setattr(commands.llm_providers, "gen_message", None)
+    monkeypatch.setattr(commands.config, "STREAM", should_stream)
     mock_wrap.side_effect = lambda text, width: f"WRAPPED({text})"
 
     commands.generate_message(["--dummy"])
 
-    mock_gen.assert_called_once_with("PROMPT:some diff")
+    if should_stream:
+        mock_stream_gen.assert_called_once_with("PROMPT:some diff")
+        mock_gen.assert_not_called()
+        mock_output.assert_not_called()
+    else:
+        mock_gen.assert_called_once_with("PROMPT:some diff")
+        mock_stream_gen.assert_not_called()
+        mock_output.assert_called_once_with(
+            "WRAPPED(The generated commit's title)\n\nWRAPPED(The body)"
+        )
     mock_wrap.assert_has_calls(
         [call("The generated commit's title", 50), call("The body", 72)]
-    )
-    mock_output.assert_called_once_with(
-        "WRAPPED(The generated commit's title)\n\nWRAPPED(The body)"
     )
     assert (
         llm_providers.gen_message

@@ -1,4 +1,6 @@
-from unittest.mock import MagicMock, Mock, patch
+from __future__ import annotations
+
+from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
 import requests
@@ -115,6 +117,216 @@ def test_http_request(
         assert isinstance(result, llm.HttpResponse)
         assert result.response == expected_response
         assert result.return_code == expected_code
+
+
+@pytest.mark.parametrize(
+    "kwargs, expected_kwargs, error, status_code",
+    [
+        # 1. test kwarg passing correctly
+        (
+            {"data": "test"},
+            {"data": "test", "stream": True, "timeout": (0.5, 5)},
+            [(False, ""), None],
+            200,
+        ),
+        (
+            {"json": 1234, "stream": True},
+            {"json": 1234, "stream": True, "timeout": (0.5, 5)},
+            [(False, ""), None],
+            200,
+        ),
+        (
+            {"data": "test", "timeout": (1, 2)},
+            {"data": "test", "timeout": (1, 2), "stream": True},
+            [(False, ""), None],
+            200,
+        ),
+        (
+            {"test": [1, 2, 3], "timeout": (69, 420), "stream": False},
+            {"test": [1, 2, 3], "timeout": (69, 420), "stream": False},
+            [(False, ""), None],
+            200,
+        ),
+        # 2. test error status code (404, 503, etc.)
+        (
+            {"data": "test"},
+            {"data": "test", "stream": True, "timeout": (0.5, 5)},
+            [(True, llm.get_error_message(404)), None],
+            404,
+        ),
+        # 3. test exceptions thrown by requests
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "Cannot connect to the server"), requests.ConnectionError],
+            69,
+        ),
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "HTTP error occurred"), requests.HTTPError],
+            69,
+        ),
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "Too many redirects"), requests.TooManyRedirects],
+            69,
+        ),
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "request timed out"), requests.Timeout],
+            69,
+        ),
+        (
+            {"stream": True, "timeout": (0.5, 5)},
+            {"stream": True, "timeout": (0.5, 5)},
+            [(True, "There was an ambiguous error"), requests.RequestException],
+            69,
+        ),
+    ],
+)
+@patch("commizard.llm_providers.requests.request")
+def test_stream_request_init(
+    mock_request, kwargs, expected_kwargs, error, status_code
+):
+    url = "https://test.com"
+    method = "TEST"
+    mock_resp = Mock()
+    mock_resp.status_code = status_code
+    mock_request.return_value = mock_resp
+    mock_request.side_effect = error[1]
+
+    obj = llm.StreamRequest(method, url, **kwargs)
+    mock_request.assert_called_once_with(method, url, **expected_kwargs)
+    assert obj.error == error[0]
+
+    if error[0][0]:
+        assert obj.response is None
+    else:
+        assert obj.response == mock_resp
+
+
+@pytest.mark.parametrize(
+    "encoding, expected",
+    [(None, "utf-8"), ("ANSI", "ANSI"), ("utf-8", "utf-8")],
+)
+@patch("commizard.llm_providers.requests.request")
+def test_stream_request_init_correct_encoding(mock_request, encoding, expected):
+    url = "https://test.com"
+    method = "TEST"
+    mock_resp = Mock()
+    mock_resp.status_code = 200
+    mock_resp.encoding = encoding
+    mock_request.return_value = mock_resp
+
+    obj = llm.StreamRequest(method, url)
+    mock_request.assert_called_once_with(
+        method, url, timeout=(0.5, 5), stream=True
+    )
+    assert obj.response.encoding == expected
+
+
+@pytest.mark.parametrize("exception", [ValueError, llm.StreamError, None])
+def test_stream_request_context_manager(exception):
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.response = Mock()
+    stream_object.error = ("doesn't", "matter")
+
+    if exception is None:
+        with stream_object as obj:
+            assert obj is stream_object
+    else:
+        with pytest.raises(exception), stream_object as obj:
+            assert obj is stream_object
+            raise exception()
+
+    stream_object.response.close.assert_called_once()
+
+
+def test_stream_request_context_manager_none_response():
+    """
+    In here, we just check that the close method doesn't get called on None type
+    If it does, the function will raise the following exception:
+    AttributeError: 'NoneType' object has no attribute 'close'
+    """
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.response = None
+
+    with stream_object as obj:
+        assert obj is stream_object
+
+
+def test_stream_request_exit_propagates_exceptions_and_allows_normal_exit():
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.response = Mock()
+
+    # 1. correctly propagates exceptions
+    result = stream_object.__exit__(ValueError, ValueError(), None)
+    assert result is False
+
+    # 2. correctly returns on no exception
+    result = stream_object.__exit__(None, None, None)
+    assert result is None
+
+
+def test_stream_request_iterator_protocol_no_raises():
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.response = Mock()
+    data_for_test = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    stream_object.response.iter_lines.return_value = data_for_test
+    stream_object.error = (False, "")
+
+    for test, actual in zip(stream_object, data_for_test):
+        assert test == actual
+
+
+def test_stream_request_dunder_next_no_raises():
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    iterable = [1, 2, 3, 4, 5]
+    stream_object.stream = iter(iterable)
+    assert stream_object.__next__() == next(iter(iterable))
+
+
+def test_stream_request_dunder_next_severed_connection():
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+
+    class FakeStream:
+        def __next__(self):
+            raise requests.exceptions.ChunkedEncodingError
+
+    stream_object.stream = FakeStream()
+    with pytest.raises(
+        llm.StreamError,
+        match=r"The server closed the connection before the full response was"
+        " received.",
+    ):
+        stream_object.__next__()
+
+
+@pytest.mark.parametrize("error", [(False, ""), (True, "Test error")])
+def test_stream_request_dunder_iter(error: tuple[bool, str]):
+    stream_object = llm.StreamRequest.__new__(llm.StreamRequest)
+    stream_object.error = error
+    stream_object.stream = None
+
+    if error[0]:
+        with pytest.raises(llm.StreamError, match=error[1]):
+            stream_object.__iter__()
+        assert stream_object.stream is None
+    else:
+        stream_object.response = Mock()
+        # make a mock iterable return value
+        stream_object.response.iter_lines.return_value = [1, 2, 3]
+
+        obj = stream_object.__iter__()
+
+        stream_object.response.iter_lines.assert_called_once_with(
+            decode_unicode=True
+        )
+        assert obj is stream_object
+        assert type(stream_object.stream) is type(iter([]))
 
 
 @patch("commizard.llm_providers.list_locals")
@@ -273,6 +485,172 @@ def test_unload_model(
 )
 def test_get_error_message(error_code, expected_result):
     assert llm.get_error_message(error_code) == expected_result
+
+
+@pytest.mark.parametrize(
+    "sse_events, expected_results",
+    [
+        # 1. Real output from OpenRouter.ai
+        (
+            [
+                ": OPENROUTER PROCESSING",
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":"Hello"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":"!"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                ": OPENROUTER PROCESSING",
+                "",
+                ": OPENROUTER PROCESSING",
+                "",
+                ": OPENROUTER PROCESSING",
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" How"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" can"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" I"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" help"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" you"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":" today"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":"?"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":""}',
+                "",
+                ": OPENROUTER PROCESSING",
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"stop","native_finish_reason":"stop","logprobs":null}],"system_fingerprint":""}',
+                "",
+                'data: {"id":"gen-1769532074","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion.chunk","created":1769532074,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":15,"completion_tokens":10,"total_tokens":25,"cost":0,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"cost_details":{"upstream_inference_cost":0,"upstream_inference_prompt_cost":0,"upstream_inference_completions_cost":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0}}}',
+                "",
+                "data: [DONE]",
+                "",
+            ],
+            [
+                "",
+                "Hello",
+                "!",
+                " How",
+                " can",
+                " I",
+                " help",
+                " you",
+                " today",
+                "?",
+                "",
+                "",
+            ],
+        ),
+        # 2. edge cases
+        (
+            [
+                'data: {"choices":[{"index":0,"delta":{"content":"foo"}}]}',
+                'data: {"choices":[{"index":0}]}',
+                'data: {"choices":[{"index":0,"delta":{"content":"bacon"}}]}',
+                'data: {"choices":[{"index":0,"delta":{"not-content":"ham"}}]}',
+                "no data here, skip it",
+                "data: [DONE]",
+                "data: We shouldn't read these",
+                '[data: {"choices":[{"index":0,"delta":{"content":"eggs"}}]}',
+            ],
+            ["foo", "bacon"],
+        ),
+    ],
+)
+@patch("commizard.llm_providers.output.print_token")
+@patch("commizard.llm_providers.output.set_stream_print_width")
+@patch("commizard.llm_providers.output.live_stream")
+@patch("commizard.llm_providers.StreamRequest")
+def test_stream_generate_no_error(
+    mock_stream_request,
+    mock_live_stream,
+    mock_set_stream_print_width,
+    mock_print_token,
+    sse_events,
+    expected_results,
+    monkeypatch,
+):
+    monkeypatch.setattr(llm, "selected_model", "mymodel")
+
+    stream_obj = MagicMock()
+    stream_obj.__iter__.return_value = iter(sse_events)
+    stream_obj.__enter__.return_value = stream_obj
+    mock_stream_request.return_value = stream_obj
+
+    res = llm.stream_generate("testing")
+    mock_stream_request.assert_called_once()
+    mock_live_stream.assert_called_once()
+    mock_set_stream_print_width.assert_called_once_with(70)
+    expected_calls = [call(i) for i in expected_results]
+    mock_print_token.assert_has_calls(expected_calls)
+    assert res == (0, "".join(expected_results))
+
+
+@pytest.mark.parametrize(
+    "sse_event, expected_return",
+    [
+        # 1. Incorrect JSON responses
+        (
+            ['data: {"not_a_correct_name":[{"delta":{"content":"foo"}}]}'],
+            (1, "Couldn't find response from JSON: Invalid output"),
+        ),
+        (
+            ['data: {"choices":{"delta":{"content":"foo"}}}'],
+            (1, "Couldn't find response from JSON: Invalid output"),
+        ),
+        # 2. invalid response (Not JSON)
+        ([": We should skip this", "no exception should raise here"], (0, "")),
+        (
+            ['data: "choices" : "not_correct_JSON"'],
+            (1, "Couldn't decode JSON response"),
+        ),
+        (
+            ["data: someone's messing with us!"],
+            (1, "Couldn't decode JSON response"),
+        ),
+    ],
+)
+@patch("commizard.llm_providers.output.print_token")
+@patch("commizard.llm_providers.output.set_stream_print_width")
+@patch("commizard.llm_providers.output.live_stream")
+@patch("commizard.llm_providers.StreamRequest")
+def test_stream_generate_bad_response(
+    mock_stream_request,
+    mock_live_stream,
+    mock_set_stream_print_width,
+    mock_print_token,
+    sse_event,
+    expected_return,
+    monkeypatch,
+):
+    monkeypatch.setattr(llm, "selected_model", "mymodel")
+    stream_obj = MagicMock()
+    stream_obj.__iter__.return_value = iter(sse_event)
+    stream_obj.__enter__.return_value = stream_obj
+    mock_stream_request.return_value = stream_obj
+
+    res = llm.stream_generate("testing")
+    mock_stream_request.assert_called_once()
+    mock_live_stream.assert_called_once()
+    mock_set_stream_print_width.assert_called_once_with(70)
+    mock_print_token.assert_not_called()
+    assert res == expected_return
+
+
+@patch("commizard.llm_providers.StreamRequest")
+def test_stream_generate_stream_error(
+    mock_stream_request,
+    monkeypatch,
+):
+    monkeypatch.setattr(llm, "selected_model", "mymodel")
+    mock_stream_request.side_effect = llm.StreamError("test exception")
+    res = llm.stream_generate("testing")
+    assert res == (1, "test exception")
 
 
 @pytest.mark.parametrize(

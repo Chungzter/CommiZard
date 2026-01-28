@@ -95,7 +95,8 @@ class StreamRequest:
         # set default values if the kwargs don't provide it
         if kwargs.get("stream") is None:
             kwargs["stream"] = True
-        elif kwargs.get("timeout") is None:
+
+        if kwargs.get("timeout") is None:
             kwargs["timeout"] = (0.5, 5)
         self.response = None
         try:
@@ -339,13 +340,9 @@ def stream_generate(prompt: str) -> tuple[int, str]:
             StreamRequest("POST", url, json=payload, headers=head) as stream,
             output.live_stream(),
         ):
-            output.set_width(70)
+            output.set_stream_print_width(70)
             for raw in stream:
                 line = raw.strip()
-
-                # it's whitespace or a comment
-                if not line or line.startswith(":"):
-                    continue
 
                 # It's not data
                 if not line.startswith("data:"):
