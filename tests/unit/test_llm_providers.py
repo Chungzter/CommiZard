@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import Mock, call, patch
+from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
 import requests
@@ -367,7 +367,6 @@ def test_request_load_model(mock_http_request, monkeypatch):
     retval = Mock()
     retval.response = "response"
     retval.return_code = 420
-    mock_url.return_value = "localhost"
     mock_http_request.return_value = retval
     assert llm.request_load_model("gpt") == retval
     mock_http_request.assert_called_once_with(
