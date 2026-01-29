@@ -159,7 +159,7 @@ def test_check_git_installed(monkeypatch, git_path, expected):
         (69420, 12345, False),
     ],
 )
-@patch("commizard.start.llm_providers.http_request")
+@patch("commizard.start.llm_providers.HttpRequest")
 def test_local_ai_available(mock_req, ret_code, resp, expected):
     mock_req.return_value.return_code = ret_code
     mock_req.return_value.response = resp

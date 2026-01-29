@@ -30,11 +30,38 @@ Here is the diff:
 """
 
 
-class HttpResponse:
-    def __init__(self, response, return_code):
-        self.response = response
+# TODO: Currently, response attribute is of type [dict | str | None] which makes
+#       subscripting for values or using the get method error-prone, as shown by
+#       the mypy linter. We should change this behavior with minimal change to
+#       the users of this class.
+class HttpRequest:
+    def __init__(self, method: str, url: str, **kwargs):
+        resp = None
+        method = method.upper()  # All methods are upper case
+        try:
+            if method in ("GET", "POST", "PUT", "PATCH", "DELETE"):
+                r = requests.request(method, url, **kwargs)  # noqa: S113
+            else:
+                raise ValueError(f"{method} is not a valid method.")
+            try:
+                resp = r.json()
+            except requests.exceptions.JSONDecodeError:
+                resp = r.text
+            ret_val = r.status_code
+        except requests.ConnectionError:
+            ret_val = -1
+        except requests.HTTPError:
+            ret_val = -2
+        except requests.TooManyRedirects:
+            ret_val = -3
+        except requests.Timeout:
+            ret_val = -4
+        except requests.RequestException:
+            ret_val = -5
+
+        self.response = resp
         # if the value is less than zero, there's something wrong.
-        self.return_code = return_code
+        self.return_code = ret_val
 
     def is_error(self) -> bool:
         return self.return_code < 0
@@ -47,34 +74,9 @@ class HttpResponse:
             -2: "HTTP error occurred",
             -3: "too many redirects",
             -4: "the request timed out",
+            -5: "There was an ambiguous error",
         }
         return err_dict[self.return_code]
-
-
-def http_request(method: str, url: str, **kwargs) -> HttpResponse:
-    resp = None
-    method = method.upper()  # All methods are upper case
-    try:
-        if method in ("GET", "POST", "PUT", "PATCH", "DELETE"):
-            r = requests.request(method, url, **kwargs)  # noqa: S113
-        else:
-            raise ValueError(f"{method} is not a valid method.")
-        try:
-            resp = r.json()
-        except requests.exceptions.JSONDecodeError:
-            resp = r.text
-        ret_val = r.status_code
-    except requests.ConnectionError:
-        ret_val = -1
-    except requests.HTTPError:
-        ret_val = -2
-    except requests.TooManyRedirects:
-        ret_val = -3
-    except requests.Timeout:
-        ret_val = -4
-    except requests.RequestException:
-        ret_val = -5
-    return HttpResponse(resp, ret_val)
 
 
 class StreamError(Exception):
@@ -154,6 +156,19 @@ class StreamRequest:
             ) from None
 
 
+def list_locals() -> list[list[str]] | None:
+    """
+    return a list of available local AI models
+    """
+    url = config.LLM_URL + "api/tags"
+    r = HttpRequest("GET", url, timeout=0.3)
+    if r.is_error() or r.response is None:
+        return None
+
+    r = r.response["models"]
+    return [[model["name"], model["details"]["parameter_size"]] for model in r]
+
+
 def init_model_list() -> None:
     """
     Initialize the list of available models inside the available_models global
@@ -167,16 +182,18 @@ def init_model_list() -> None:
         available_models = [member[0] for member in models]
 
 
-def list_locals() -> list[list[str]] | None:
+def request_load_model(model_name: str) -> HttpRequest:
     """
-    return a list of available local AI models
+    Send a request to load the local model into RAM
+    Args:
+        model_name: name of the model to load
+
+    Returns:
+        a HttpRequest object
     """
-    url = config.LLM_URL + "api/tags"
-    r = http_request("GET", url, timeout=0.3)
-    if r.is_error():
-        return None
-    r = r.response["models"]
-    return [[model["name"], model["details"]["parameter_size"]] for model in r]
+    payload = {"model": model_name}
+    url = config.LLM_URL + "api/generate"
+    return HttpRequest("POST", url, json=payload, timeout=(0.3, 600))
 
 
 def select_model(select_str: str) -> tuple[int, str]:
@@ -204,20 +221,6 @@ def select_model(select_str: str) -> tuple[int, str]:
         )
 
 
-def request_load_model(model_name: str) -> HttpResponse:
-    """
-    Send a request to load the local model into RAM
-    Args:
-        model_name: name of the model to load
-
-    Returns:
-        a HttpResponse object
-    """
-    payload = {"model": model_name}
-    url = config.LLM_URL + "api/generate"
-    return http_request("POST", url, json=payload, timeout=(0.3, 600))
-
-
 def unload_model() -> None:
     """
     Unload the local model from RAM
@@ -228,7 +231,7 @@ def unload_model() -> None:
         return
     url = config.gen_request_url()
     payload = {"model": selected_model, "keep_alive": 0}
-    response = http_request("POST", url, json=payload)
+    response = HttpRequest("POST", url, json=payload)
     if response.is_error():
         output.print_error(f"Failed to unload model: {response.err_message()}")
     else:
@@ -256,7 +259,8 @@ def get_error_message(status_code: int) -> str:
     """
     error_messages = {
         400: (
-            "Bad Request - The request was malformed or contains invalid parameters.\n"
+            "Bad Request - The request was malformed or contains invalid"
+            " parameters.\n"
         ),
         403: (
             "Forbidden - Access to Ollama was denied.\n"
@@ -292,16 +296,19 @@ def get_error_message(status_code: int) -> str:
     if 400 <= status_code < 500:
         # Client errors (4xx)
         return (
-            f"Error {status_code}: Client Error - This appears to be a configuration or request issue.\n"
+            f"Error {status_code}: Client Error - This appears to be a "
+            "configuration or request issue.\n"
             "Suggestions:\n"
             "  • Verify your request parameters and model name\n"
-            "  • Check Ollama documentation: https://github.com/ollama/ollama/blob/main/docs/api.md\n"
+            "  • Check Ollama documentation: "
+            "https://github.com/ollama/ollama/blob/main/docs/api.md\n"
             "  • Review your commizard configuration"
         )
     elif 500 <= status_code < 600:
         # Server errors (5xx)
         return (
-            f"Error {status_code}: Server Error - This appears to be an issue with the Ollama service.\n"
+            f"Error {status_code}: Server Error - This appears to be an issue "
+            "with the Ollama service.\n"
             "Suggestions:\n"
             "  • Try restarting Ollama: ollama serve\n"
             "  • Check Ollama logs for more information\n"
@@ -386,7 +393,8 @@ def generate(prompt: str) -> tuple[int, str]:
     if selected_model is None:
         return 1, (
             "No model selected. You must use the start command to specify "
-            "which model to use before generating.\nExample: start model_name"
+            "which model to use before generating.\n"
+            "Example: start model_name"
         )
     head = {
         "Content-Type": "application/json",
@@ -394,7 +402,7 @@ def generate(prompt: str) -> tuple[int, str]:
     }
     message = [{"role": "user", "content": prompt}]
     payload = {"model": selected_model, "messages": message, "stream": False}
-    r = http_request("POST", url, json=payload, headers=head)
+    r = HttpRequest("POST", url, json=payload, headers=head)
     if r.is_error():
         return 1, r.err_message()
     elif r.return_code == 200:

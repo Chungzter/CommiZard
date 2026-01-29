@@ -12,6 +12,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Updated generation to use the v1/chat/completions endpoint instead of the
   Ollama-specific API.
+- requests wrapper API has been restructured for improved readability and speed,
+  utilizing a unified HttpRequest class.
 
 ### Fixed
 
@@ -19,6 +21,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   API
 - Streaming requests now automatically get a timeout to prevent them from
   hanging forever
+- Fixed potential KeyError exception raised from ambiguous errors in generation
 
 ## [0.4.2] - 2025-12-27
 
