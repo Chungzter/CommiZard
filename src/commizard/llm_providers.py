@@ -209,7 +209,7 @@ def select_model(select_str: str) -> tuple[int, str]:
         return 1, f"failed to load {select_str}: {load_res.err_message()}"
     elif load_res.return_code != 200:
         return 1, get_error_message(load_res.return_code)
-    elif load_res.response.get("done_reason") == "load":
+    elif (load_res.response or {}).get("done_reason") == "load":
         global selected_model
         selected_model = select_str
         return 0, f"{select_str} loaded."
@@ -406,7 +406,12 @@ def generate(prompt: str) -> tuple[int, str]:
     if r.is_error():
         return 1, r.err_message()
     elif r.return_code == 200:
-        res = r.response.get("choices")[0]["message"]["content"]
+        res = (
+            (r.response or {})
+            .get("choices", [{}])[0]
+            .get("message", {})
+            .get("content", "")
+        )
         return 0, res
     else:
         error_msg = get_error_message(r.return_code)
