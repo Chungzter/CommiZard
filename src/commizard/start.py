@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import shutil
+import random as rand
 
 from rich.color import Color
 from rich.console import Console
@@ -67,21 +68,29 @@ def gradient_text(text: str, start_color: Color, end_color: Color) -> str:
     return "\n".join(result_lines)
 
 
-# TODO: see issue #5
 def print_welcome(color: bool) -> None:
     """
     Print the welcome screen. Right now it's the ASCII art of the project's
     name.
     """
-    start_color = Color.parse("#535147")
-    end_color = Color.parse("#8F00FF")
     console = Console(color_system="auto" if color else None)
     if console.color_system in ("truecolor", "256"):
+        colors = [
+            ["#1A0D2E", "#2E1B4A", "#FF5E00", "#FF7518", "#FF8C42"],
+            ["#0F001A", "#331A4D", "#00F2FE", "#01FFFF", "#FF00FE"],
+            ["#2E1B4A", "#1F0F2E", "#FF4500", "#F6287D", "#FF00FF"],
+            ["#0A1A3A", "#1A0D2E", "#FF6B00", "#00F2FE", "#FF00FE"]
+            ]
+        theme = rand.choice(colors)
+        s, e = rand.sample(theme, 2)
+        start_color = Color.parse(s)
+        end_color = Color.parse(e)
         console.print(gradient_text(text_banner, start_color, end_color))
 
     # don't use the gradient function for terminals that don't support it:
     else:
-        console.print(f"[bold purple]{text_banner}[/bold purple]")
+        color = rand.choice(["grey", "purple", "magenta", "orange", "blue"])
+        console.print(f"[bold {color}]{text_banner}[/bold {color}]")
 
 
 def check_git_installed() -> bool:
