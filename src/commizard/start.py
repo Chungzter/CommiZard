@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import shutil
 import random as rand
+import shutil
 
 from rich.color import Color
 from rich.console import Console
@@ -79,8 +79,8 @@ def print_welcome(color: bool) -> None:
             ["#1A0D2E", "#2E1B4A", "#FF5E00", "#FF7518", "#FF8C42"],
             ["#0F001A", "#331A4D", "#00F2FE", "#01FFFF", "#FF00FE"],
             ["#2E1B4A", "#1F0F2E", "#FF4500", "#F6287D", "#FF00FF"],
-            ["#0A1A3A", "#1A0D2E", "#FF6B00", "#00F2FE", "#FF00FE"]
-            ]
+            ["#0A1A3A", "#1A0D2E", "#FF6B00", "#00F2FE", "#FF00FE"],
+        ]
         theme = rand.choice(colors)
         s, e = rand.sample(theme, 2)
         start_color = Color.parse(s)
@@ -89,8 +89,8 @@ def print_welcome(color: bool) -> None:
 
     # don't use the gradient function for terminals that don't support it:
     else:
-        color = rand.choice(["grey", "purple", "magenta", "orange", "blue"])
-        console.print(f"[bold {color}]{text_banner}[/bold {color}]")
+        col_str = rand.choice(["grey", "purple", "magenta", "orange", "blue"])
+        console.print(f"[bold {col_str}]{text_banner}[/bold {col_str}]")
 
 
 def check_git_installed() -> bool:
