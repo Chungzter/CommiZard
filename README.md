@@ -159,4 +159,4 @@ and we’ll figure it out together!
 
 `CommiZard` is released under the [MIT license](LICENSE).
 
-Copyright (c) 2025 Chungzter
+Copyright (c) 2025-2026 Chungzter
