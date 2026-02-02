@@ -15,6 +15,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - requests wrapper API has been restructured for improved readability and speed,
   utilizing a unified HttpRequest class.
 - optimized colored banner printing pipeline by ~25%
+- Randomized banner colors on each print / startup
 
 ### Fixed
 

@@ -118,7 +118,7 @@ def test_print_welcome(
             assert "[#" in captured
         else:
             # Should contain fallback purple markup
-            assert "[bold purple]" in captured
+            assert captured.startswith("[bold ")
     else:
         assert "[#" not in captured
 
