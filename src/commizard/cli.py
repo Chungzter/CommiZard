@@ -62,26 +62,29 @@ def main() -> int:
     Returns:
         int: Exit code (0 for success, non-zero for errors)
     """
-    # TODO: we're losing performance. We should take a look at better options
-    #       to parallelize this. right now there's a 40-50 ms regression on
+    # TODO: we're losing performance. We should take a look at better options to
+    #       parallelize this. right now there's a 40-50 ms regression on
     #       startups with the ollama server both on and off
     handle_args()
-    output.init_console(config.USE_COLOR)
 
-    if not start.check_git_installed():
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.submit(output.init_console, config.USE_COLOR)
+        fut_ai = executor.submit(start.local_ai_available)
+        fut_git = executor.submit(start.check_git_installed)
+
+        git_ok = fut_git.result()
+
+    if not git_ok:
         output.print_error("git not installed")
         return 1
     if not start.is_inside_working_tree():
         output.print_error("not inside work tree")
         return 1
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        if config.SHOW_BANNER:
-            executor.submit(start.print_welcome, config.USE_COLOR)
-        fut_ai = executor.submit(start.local_ai_available)
+    if config.SHOW_BANNER:
+        start.print_welcome(config.USE_COLOR)
 
-        local_ai_ok = fut_ai.result()
-
+    local_ai_ok = fut_ai.result()
     if not local_ai_ok:
         output.print_warning("local AI not available")
 
