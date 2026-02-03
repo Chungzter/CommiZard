@@ -62,9 +62,6 @@ def main() -> int:
     Returns:
         int: Exit code (0 for success, non-zero for errors)
     """
-    # TODO: we're losing performance. We should take a look at better options to
-    #       parallelize this. right now there's a 40-50 ms regression on
-    #       startups with the ollama server both on and off
     handle_args()
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
