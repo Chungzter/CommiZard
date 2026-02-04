@@ -63,28 +63,26 @@ def main() -> int:
         int: Exit code (0 for success, non-zero for errors)
     """
     handle_args()
+
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        fut_git = executor.submit(start.check_git_installed)
+        executor.submit(output.init_console, config.USE_COLOR)
         fut_ai = executor.submit(start.local_ai_available)
-        fut_worktree = executor.submit(start.is_inside_working_tree)
+        fut_git = executor.submit(start.check_git_installed)
+
         git_ok = fut_git.result()
-        ai_ok = fut_ai.result()
-        worktree_ok = fut_worktree.result()
 
     if not git_ok:
         output.print_error("git not installed")
         return 1
-
-    if not worktree_ok:
+    if not start.is_inside_working_tree():
         output.print_error("not inside work tree")
         return 1
-
-    output.init_console(config.USE_COLOR)
 
     if config.SHOW_BANNER:
         start.print_welcome(config.USE_COLOR)
 
-    if not ai_ok:
+    local_ai_ok = fut_ai.result()
+    if not local_ai_ok:
         output.print_warning("local AI not available")
 
     try:

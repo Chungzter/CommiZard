@@ -24,6 +24,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Streaming requests now automatically get a timeout to prevent them from
   hanging forever
 - Fixed potential KeyError exception raised from ambiguous errors in generation
+- Fixed race condition in startup checks that could cause uncaught
+  FileNotFoundError / crash when git is not installed
 
 ## [0.4.2] - 2025-12-27
 
