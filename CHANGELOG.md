@@ -8,6 +8,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-02-05
+
 ### Changed
 
 - Updated generation to use the v1/chat/completions endpoint instead of the
@@ -190,7 +192,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - MIT open source license.
 - PyPI release: the package can now be installed with `pip install commizard`.
 
-[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.4.2...master
+[Unreleased]: https://github.com/Chungzter/CommiZard/compare/v0.4.3...master
+
+[0.4.3]: https://github.com/Chungzter/CommiZard/compare/v0.4.2...v0.4.3
 
 [0.4.2]: https://github.com/Chungzter/CommiZard/compare/v0.4.1...v0.4.2
 
