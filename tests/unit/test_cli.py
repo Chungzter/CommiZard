@@ -82,7 +82,7 @@ def test_handle_args_no_color(monkeypatch):
 @patch("commizard.cli.start.local_ai_available")
 @patch("commizard.cli.start.is_inside_working_tree")
 @patch("commizard.cli.start.print_welcome")
-@patch("commizard.cli.commands.parser")
+@patch("commizard.commands.parser")
 @patch("commizard.cli.input")
 @patch("commizard.cli.output.print_error")
 @patch("commizard.cli.output.print_warning")

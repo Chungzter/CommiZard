@@ -4,7 +4,7 @@ import concurrent.futures
 import sys
 
 from . import __version__ as version
-from . import commands, config, output, start
+from . import config, output, start
 
 help_msg = """
 Commit writing wizard
@@ -84,6 +84,8 @@ def main() -> int:
     local_ai_ok = fut_ai.result()
     if not local_ai_ok:
         output.print_warning("local AI not available")
+
+    from . import commands
 
     try:
         while True:

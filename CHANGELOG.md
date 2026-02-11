@@ -8,6 +8,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Improved startup time by lazy importing modules
+
 ## [0.4.3] - 2026-02-05
 
 ### Changed

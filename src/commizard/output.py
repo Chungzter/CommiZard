@@ -1,11 +1,7 @@
 from __future__ import annotations
 
-import textwrap
-
 from rich.console import Console
 from rich.live import Live
-from rich.padding import Padding
-from rich.table import Table
 from rich.text import Text
 
 console: Console = Console()
@@ -68,6 +64,9 @@ def print_table(
         rows: A list of rows to print.
         title (optional): The title of the table.
     """
+    from rich.padding import Padding
+    from rich.table import Table
+
     table = Table(title=title)
 
     for col in cols:
@@ -83,6 +82,8 @@ def wrap_text(text: str, width: int = 70) -> str:
     """
     Wrap text into a specified width, preserving line breaks.
     """
+    import textwrap
+
     lines = text.splitlines()
     wrapped_lines = [
         textwrap.fill(
