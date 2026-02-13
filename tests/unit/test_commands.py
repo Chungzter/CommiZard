@@ -316,10 +316,10 @@ def test_generate_message_success(
         ("Windows", False),
     ],
 )
-@patch("commizard.commands.sys.stdout.flush")
-@patch("commizard.commands.sys.stdout.write")
-@patch("commizard.commands.os.system")
-@patch("commizard.commands.platform.system")
+@patch("sys.stdout.flush")
+@patch("sys.stdout.write")
+@patch("os.system")
+@patch("platform.system")
 def test_cmd_clear(mock_os, mock_exec, mock_write, mock_flush, os, has_clear):
     mock_os.return_value = os
     mock_exec.return_value = int(not has_clear)

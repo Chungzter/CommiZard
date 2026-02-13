@@ -1,12 +1,6 @@
 from __future__ import annotations
 
-import os
-import platform
-import sys
-from difflib import get_close_matches
 from typing import TYPE_CHECKING
-
-import pyperclip
 
 from . import config, git_utils, llm_providers, output
 
@@ -87,6 +81,7 @@ def copy_command(opts: list[str]) -> None:
             "No generated message found. Please run 'generate' first."
         )
         return
+    import pyperclip
 
     pyperclip.copy(llm_providers.gen_message)
     output.print_success("Copied to clipboard.")
@@ -178,6 +173,10 @@ def cmd_clear(opts: list[str]) -> None:
     """
     Clear terminal screen (Windows/macOS/Linux).
     """
+    import os
+    import platform
+    import sys
+
     cmd = "cls" if platform.system().lower().startswith("win") else "clear"
     rc = os.system(cmd)  # noqa: S605
     if rc != 0:  # fallback to ANSI if shell command failed
@@ -216,6 +215,8 @@ def parser(user_input: str) -> int:
         cmd_func(commands[1:])
         return 0
     else:
+        from difflib import get_close_matches
+
         err_str = (
             f"Command '{commands[0]}' not found. Use 'help' for more info\n"
         )

@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import random as rand
-import shutil
-
 from rich.color import Color
 from rich.console import Console
 
@@ -73,6 +70,8 @@ def print_welcome(color: bool) -> None:
     Print the welcome screen. Right now it's the ASCII art of the project's
     name.
     """
+    import random as rand
+
     console = Console(color_system="auto" if color else None)
     if console.color_system in ("truecolor", "256"):
         colors = [
@@ -97,6 +96,8 @@ def check_git_installed() -> bool:
     """
     Check if the git package is installed.
     """
+    import shutil
+
     return shutil.which("git") is not None
 
 
