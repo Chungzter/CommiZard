@@ -325,7 +325,7 @@ def get_error_message(status_code: int) -> str:
 def stream_generate(prompt: str) -> tuple[int, str]:
     """
     Generate LLM response by streaming the generated text.
-    Not: This function prints to stdout and also ignores reasoning output
+    Note: This function prints to stdout and also ignores reasoning output
     Args:
         prompt: The prompt to send to the LLM.
 
@@ -334,20 +334,29 @@ def stream_generate(prompt: str) -> tuple[int, str]:
         response is ok, 1 otherwise. The response is the error message if the
         request fails and the return code is 1.
     """
+    from rich.live import Live
+    from rich.text import Text
+
+    stream_txt = Text(style="blue")
     url = config.gen_request_url()
     head = {
         "Content-Type": "application/json",
         "Authorization": "Bearer ollama",
     }
+    prev_width = output.console.width  # save past width before changing it
     message = [{"role": "user", "content": prompt}]
     payload = {"model": selected_model, "messages": message, "stream": True}
-    res = ""
     try:
         with (
             StreamRequest("POST", url, json=payload, headers=head) as stream,
-            output.live_stream(),
+            Live(
+                stream_txt,
+                console=output.console,
+                vertical_overflow="visible",
+                refresh_per_second=30,
+            ),
         ):
-            output.set_stream_print_width(70)
+            output.console.width = 50
             for raw in stream:
                 line = raw.strip()
 
@@ -364,19 +373,22 @@ def stream_generate(prompt: str) -> tuple[int, str]:
                 if not delta:
                     continue
                 delta = delta.get("content", "")
-                res += delta
-                output.print_token(delta)
+                stream_txt.append(delta)
 
     except (KeyError, IndexError):
+        output.console.width = prev_width
         return 1, "Couldn't find response from JSON: Invalid output"
 
     except json.decoder.JSONDecodeError:
+        output.console.width = prev_width
         return 1, "Couldn't decode JSON response"
 
     except StreamError as e:
+        output.console.width = prev_width
         return 1, str(e)
 
-    return 0, res
+    output.console.width = prev_width
+    return 0, stream_txt.plain
 
 
 def generate(prompt: str) -> tuple[int, str]:

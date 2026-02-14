@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 import requests
@@ -321,7 +321,7 @@ def test_stream_request_dunder_iter(error: tuple[bool, str]):
         ),
         # http_request succeeds but no models
         (False, {"models": []}, []),
-        # Bizzare case where There isn't any error but response is None
+        # Bizarre case where There isn't any error but response is None
         (False, None, None),
     ],
 )
@@ -584,15 +584,11 @@ def test_get_error_message(error_code, expected_result):
         ),
     ],
 )
-@patch("commizard.llm_providers.output.print_token")
-@patch("commizard.llm_providers.output.set_stream_print_width")
-@patch("commizard.llm_providers.output.live_stream")
+@patch("rich.live.Live")
 @patch("commizard.llm_providers.StreamRequest")
 def test_stream_generate_no_error(
     mock_stream_request,
     mock_live_stream,
-    mock_set_stream_print_width,
-    mock_print_token,
     sse_events,
     expected_results,
     monkeypatch,
@@ -607,9 +603,6 @@ def test_stream_generate_no_error(
     res = llm.stream_generate("testing")
     mock_stream_request.assert_called_once()
     mock_live_stream.assert_called_once()
-    mock_set_stream_print_width.assert_called_once_with(70)
-    expected_calls = [call(i) for i in expected_results]
-    mock_print_token.assert_has_calls(expected_calls)
     assert res == (0, "".join(expected_results))
 
 
@@ -637,14 +630,12 @@ def test_stream_generate_no_error(
         ),
     ],
 )
-@patch("commizard.llm_providers.output.print_token")
-@patch("commizard.llm_providers.output.set_stream_print_width")
-@patch("commizard.llm_providers.output.live_stream")
+@patch("rich.text.Text.append")
+@patch("rich.live.Live")
 @patch("commizard.llm_providers.StreamRequest")
 def test_stream_generate_bad_response(
     mock_stream_request,
     mock_live_stream,
-    mock_set_stream_print_width,
     mock_print_token,
     sse_event,
     expected_return,
@@ -659,7 +650,6 @@ def test_stream_generate_bad_response(
     res = llm.stream_generate("testing")
     mock_stream_request.assert_called_once()
     mock_live_stream.assert_called_once()
-    mock_set_stream_print_width.assert_called_once_with(70)
     mock_print_token.assert_not_called()
     assert res == expected_return
 
