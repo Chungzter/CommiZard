@@ -357,6 +357,8 @@ def stream_generate(prompt: str) -> tuple[int, str]:
             ),
         ):
             output.console.width = 50
+            new_paragraph = False
+            prev_char = ""  # in case double newline was in two separate chunks
             for raw in stream:
                 line = raw.strip()
 
@@ -373,6 +375,13 @@ def stream_generate(prompt: str) -> tuple[int, str]:
                 if not delta:
                     continue
                 delta = delta.get("content", "")
+
+                if not new_paragraph:
+                    if "\n\n" in (prev_char + delta):
+                        output.console.width = 72
+                        new_paragraph = True
+                    prev_char = delta[-1:]  # only need last char
+
                 stream_txt.append(delta)
 
     except (KeyError, IndexError):

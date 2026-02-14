@@ -12,6 +12,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Improved startup time by lazy importing modules
 
+### Fixed
+
+- The printing width of the streaming output now correctly changes for the body
+  of the commit message
+
 ## [0.4.3] - 2026-02-05
 
 ### Changed
