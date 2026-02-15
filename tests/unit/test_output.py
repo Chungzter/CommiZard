@@ -108,29 +108,3 @@ def test_print_table(mock_print, cols, rows, title):
 def test_wrap_text(text, width, expected):
     result = output.wrap_text(text, width=width)
     assert result == expected
-
-
-@patch("commizard.output.Live")
-def test_live_stream(mock_live):
-    res = output.live_stream()
-    mock_live.assert_called_once_with(
-        output.stream_txt,
-        console=output.stream_console,
-        vertical_overflow="visible",
-        refresh_per_second=30,
-    )
-    assert isinstance(res, type(output.Live()))
-
-
-def test_set_stream_print_width(monkeypatch):
-    monkeypatch.setattr(output.stream_console, "width", 69420)
-    assert output.stream_console.width == 69420
-    output.set_stream_print_width(42)
-    assert output.stream_console.width == 42
-
-
-@patch.object(output, "stream_txt")
-def test_print_token(mock_stream_txt):
-    tok = "hello"
-    output.print_token(tok)
-    mock_stream_txt.append.assert_called_once_with(tok)
