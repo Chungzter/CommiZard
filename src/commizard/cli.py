@@ -35,8 +35,8 @@ def handle_args():
     ]
     for arg in sys.argv[1:]:
         if arg not in supported_args:
-            print(f"Unknown option: {arg}")
-            print("try 'commizard -h' for more information.")
+            print(f"Unknown option: {arg}", file=sys.stderr)
+            print("try 'commizard -h' for more information.", file=sys.stderr)
             sys.exit(2)
         if arg in ("-v", "--version"):
             print(f"CommiZard {version}")

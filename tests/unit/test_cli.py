@@ -6,37 +6,37 @@ from commizard import cli, config
 
 
 @pytest.mark.parametrize(
-    "argv,expected_print,expect_exit",
+    "argv, expected_out, expected_err, expected_exit_code",
     [
-        (["prog"], "", False),
-        (["prog", "-v"], f"CommiZard {cli.version}\n", True),
-        (["prog", "--version"], f"CommiZard {cli.version}\n", True),
-        (["prog", "--version", "ignored"], f"CommiZard {cli.version}\n", True),
-        (["prog", "-h"], cli.help_msg.strip() + "\n", True),
-        (["prog", "--help"], cli.help_msg.strip() + "\n", True),
+        (["prog"], "", "", None),
+        (["prog", "-v"], f"CommiZard {cli.version}\n", "", 0),
+        (["prog", "--version"], f"CommiZard {cli.version}\n", "", 0),
+        (["prog", "--version", "ignored"], f"CommiZard {cli.version}\n", "", 0),
+        (["prog", "-h"], cli.help_msg.strip() + "\n", "", 0),
+        (["prog", "--help"], cli.help_msg.strip() + "\n", "", 0),
         (
             ["prog", "not", "recognized"],
+            "",
             "Unknown option: not\ntry 'commizard -h' for more information.\n",
-            True,
+            2,
         ),
     ],
 )
-@patch("commizard.cli.sys.exit")
 def test_handle_args(
-    mock_exit, argv, expected_print, expect_exit, capsys, monkeypatch
+    argv, expected_out, expected_err, expected_exit_code, capsys, monkeypatch
 ):
     monkeypatch.setattr(cli.sys, "argv", argv)
 
-    cli.handle_args()
+    if expected_exit_code is not None:
+        with pytest.raises(SystemExit) as exc:
+            cli.handle_args()
+        assert exc.value.code == expected_exit_code
+    else:
+        cli.handle_args()
 
     captured = capsys.readouterr()
-    assert captured.out == expected_print
-    assert captured.err == ""
-
-    if expect_exit:
-        mock_exit.assert_called_once()
-    else:
-        mock_exit.assert_not_called()
+    assert captured.out == expected_out
+    assert captured.err == expected_err
 
 
 def test_handle_args_no_banner(monkeypatch):
