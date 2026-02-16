@@ -240,7 +240,7 @@ def test_generate_message_no_diff(mock_diff, mock_output, monkeypatch):
 
 @patch("commizard.commands.output.print_error")
 @patch("commizard.commands.git_utils.get_clean_diff")
-@patch("commizard.commands.llm_providers.generate")
+@patch("commizard.commands.llm_providers.stream_generate")
 def test_generate_message_err(mock_gen, mock_diff, mock_output, monkeypatch):
     mock_diff.return_value = "some diff"
     mock_gen.return_value = (1, "Error happened")

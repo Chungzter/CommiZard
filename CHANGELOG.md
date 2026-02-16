@@ -12,6 +12,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Improved startup time by lazy importing modules
 - Argument handling now prints errors to stderr
+- Generation now defaults to streaming, with the option `--no-stream` added to
+  produce the result all at once
 
 ### Fixed
 

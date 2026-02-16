@@ -11,13 +11,14 @@ Commit writing wizard
 
 Usage:
   commizard [-v | --version] [-h | --help] [--no-color] [--no-banner]
+            [--no-stream]
 
 Options:
   -h, --help       Show help for commizard
   -v, --version    Show version information
   --no-color       Don't colorize output
   --no-banner      Disable the ASCII welcome banner
-  --stream         Stream generated prompt to stdout
+  --no-stream      Disable streaming and return the full response at once
 """
 
 
@@ -31,7 +32,7 @@ def handle_args():
         "--help",
         "--no-banner",
         "--no-color",
-        "--stream",
+        "--no-stream",
     ]
     for arg in sys.argv[1:]:
         if arg not in supported_args:
@@ -48,8 +49,8 @@ def handle_args():
             config.SHOW_BANNER = False
         elif arg == "--no-color":
             config.USE_COLOR = False
-        elif arg == "--stream":
-            config.STREAM = True
+        elif arg == "--no-stream":
+            config.STREAM = False
 
 
 def main() -> int:
