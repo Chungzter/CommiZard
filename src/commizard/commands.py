@@ -98,14 +98,14 @@ def start_model(opts: list[str]) -> None:
 
     if llm_providers.available_models is None:
         llm_providers.init_model_list()
+        if llm_providers.available_models is None:
+            output.print_error("No available models found.")
+            return
 
     # TODO: see issue #42
     model_name = opts[0]
 
-    if (
-        llm_providers.available_models
-        and model_name not in llm_providers.available_models
-    ):
+    if (model_name not in llm_providers.available_models):
         output.print_error(f"{model_name} Not found.")
         return
     print("Loading model...")
