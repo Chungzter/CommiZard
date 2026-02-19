@@ -11,19 +11,17 @@ Commit writing wizard
 
 Usage:
   commizard [-v | --version] [-h | --help] [--no-color] [--no-banner]
+            [--no-stream]
 
 Options:
   -h, --help       Show help for commizard
   -v, --version    Show version information
   --no-color       Don't colorize output
   --no-banner      Disable the ASCII welcome banner
-  --stream         Stream generated prompt to stdout
+  --no-stream      Disable streaming and return the full response at once
 """
 
 
-# Fixme: This function doesn't check for all possible arguments passed: if there
-#        are many arguments like: --no-color --no-banner --stream, it will just
-#        disable colors, but still print the banner and not stream the output.
 def handle_args():
     if len(sys.argv) < 2:
         return
@@ -34,24 +32,25 @@ def handle_args():
         "--help",
         "--no-banner",
         "--no-color",
-        "--stream",
+        "--no-stream",
     ]
-    if sys.argv[1] not in supported_args:
-        print(f"Unknown option: {sys.argv[1]}")
-        print("try 'commizard -h' for more information.")
-        sys.exit(2)
-    if sys.argv[1] in ("-v", "--version"):
-        print(f"CommiZard {version}")
-        sys.exit(0)
-    elif sys.argv[1] in ("-h", "--help"):
-        print(help_msg.strip(), end="\n")
-        sys.exit(0)
-    elif sys.argv[1] == "--no-banner":
-        config.SHOW_BANNER = False
-    elif sys.argv[1] == "--no-color":
-        config.USE_COLOR = False
-    elif sys.argv[1] == "--stream":
-        config.STREAM = True
+    for arg in sys.argv[1:]:
+        if arg not in supported_args:
+            print(f"Unknown option: {arg}", file=sys.stderr)
+            print("try 'commizard -h' for more information.", file=sys.stderr)
+            sys.exit(2)
+        if arg in ("-v", "--version"):
+            print(f"CommiZard {version}")
+            sys.exit(0)
+        elif arg in ("-h", "--help"):
+            print(help_msg.strip(), end="\n")
+            sys.exit(0)
+        elif arg == "--no-banner":
+            config.SHOW_BANNER = False
+        elif arg == "--no-color":
+            config.USE_COLOR = False
+        elif arg == "--no-stream":
+            config.STREAM = False
 
 
 def main() -> int:

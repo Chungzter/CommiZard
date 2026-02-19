@@ -11,11 +11,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Improved startup time by lazy importing modules
+- Argument handling now prints errors to stderr
+- Generation now defaults to streaming, with the option `--no-stream` added to
+  produce the result all at once
 
 ### Fixed
 
 - The printing width of the streaming output now correctly changes for the body
   of the commit message
+- Fixed incomplete parsing of arguments.
 
 ## [0.4.3] - 2026-02-05
 
