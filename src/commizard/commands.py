@@ -103,19 +103,23 @@ def start_model(opts: list[str]) -> None:
             output.print_error("No available models found.")
             return
 
-    matches: list = get_close_matches(opts[0], llm_providers.available_models)
+    model_name = opts[0] if opts[0] in llm_providers.available_models else None
 
-    if len(matches) != 1:
-        if matches == []:
-            output.print_error(f"Could not find a match for {opts[0]}.")
-        else:
-            err_str = f"Too many matches for {opts[0]}:\n"
-            for match in matches:
-                err_str += f"\t{match}\n"
-            output.print_error(err_str)
-        return
+    if model_name is None:
+        matches: list = get_close_matches(
+            opts[0], llm_providers.available_models
+        )
+        if len(matches) != 1:
+            if matches == []:
+                output.print_error(f"Could not find a match for {opts[0]}.")
+            else:
+                err_str = f"Too many matches for {opts[0]}:\n"
+                for match in matches:
+                    err_str += f"\t{match}\n"
+                output.print_error(err_str)
+            return
+        model_name = matches[0]
 
-    model_name: str = matches[0]
     print(f"Loading {model_name}")
     ret_stat, msg = llm_providers.select_model(model_name)
     if ret_stat == 0:
