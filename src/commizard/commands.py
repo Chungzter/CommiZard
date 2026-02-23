@@ -107,7 +107,7 @@ def start_model(opts: list[str]) -> None:
 
     if model_name is None:
         matches: list = get_close_matches(
-            opts[0], llm_providers.available_models
+            opts[0], llm_providers.available_models, cutoff=0.4
         )
         if len(matches) != 1:
             if matches == []:
