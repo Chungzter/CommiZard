@@ -26,6 +26,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The printing width of the streaming output now correctly changes for the body
   of the commit message
 - Fixed incomplete parsing of arguments.
+- Fixed stream generation error 400 when no model is selected
 
 ## [0.4.3] - 2026-02-05
 

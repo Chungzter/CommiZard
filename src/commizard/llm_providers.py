@@ -411,12 +411,6 @@ def generate(prompt: str) -> tuple[int, str]:
         request fails and the return code is 1.
     """
     url = config.gen_request_url()
-    if selected_model is None:
-        return 1, (
-            "No model selected. You must use the start command to specify "
-            "which model to use before generating.\n"
-            "Example: start model_name"
-        )
     head = {
         "Content-Type": "application/json",
         "Authorization": "Bearer ollama",

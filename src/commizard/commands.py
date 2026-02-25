@@ -154,6 +154,13 @@ def generate_message(opts: list[str]) -> None:
     if diff == "":
         output.print_warning("No changes to the repository.")
         return
+    if llm_providers.selected_model is None:
+        output.print_error(
+            "No model selected. You must use the start command "
+            "to specify which model to use before generating.\n"
+            "Example: start model_name"
+        )
+        return
 
     prompt = llm_providers.generation_prompt + diff
     if config.STREAM:
