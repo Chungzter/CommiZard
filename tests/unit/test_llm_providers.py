@@ -767,15 +767,3 @@ def test_generate(
 
     mock_http_request.assert_called_once()
     assert result == expected
-
-
-@patch("commizard.llm_providers.HttpRequest")
-def test_generate_none_selected(mock_http_request, monkeypatch):
-    monkeypatch.setattr(llm, "selected_model", None)
-    err_str = (
-        "No model selected. You must use the start command to specify "
-        "which model to use before generating.\nExample: start model_name"
-    )
-    res = llm.generate("Test prompt")
-    mock_http_request.assert_not_called()
-    assert res == (1, err_str)

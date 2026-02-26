@@ -250,12 +250,30 @@ def test_generate_message_err(mock_gen, mock_diff, mock_output, monkeypatch):
     mock_gen.return_value = (1, "Error happened")
     monkeypatch.setattr(commands.llm_providers, "generation_prompt", "PROMPT:")
     monkeypatch.setattr(commands.llm_providers, "gen_message", None)
+    monkeypatch.setattr(commands.llm_providers, "selected_model", "GPT")
 
     commands.generate_message(["--dummy"])
 
     mock_gen.assert_called_once_with("PROMPT:some diff")
     mock_output.assert_called_once_with("Error happened")
     assert commands.llm_providers.gen_message is None
+
+
+@patch("commizard.commands.git_utils.get_clean_diff")
+@patch("commizard.commands.llm_providers.stream_generate")
+@patch("commizard.commands.output.print_error")
+def test_generate_message_none_selected(
+    mock_err, mock_gen, mock_diff, monkeypatch
+):
+    mock_diff.return_value = "some diff"
+    monkeypatch.setattr(commands.llm_providers, "selected_model", None)
+    err_str = (
+        "No model selected. You must use the start command to specify "
+        "which\nmodel to use before generating.\nExample: start model_name"
+    )
+    commands.generate_message(["--dummy"])
+    mock_err.assert_called_once_with(err_str)
+    mock_gen.assert_not_called()
 
 
 @pytest.mark.parametrize("should_stream", [True, False])
@@ -285,6 +303,8 @@ def test_generate_message_success(
     monkeypatch.setattr(commands.llm_providers, "generation_prompt", "PROMPT:")
     monkeypatch.setattr(commands.llm_providers, "gen_message", None)
     monkeypatch.setattr(commands.config, "STREAM", should_stream)
+    monkeypatch.setattr(commands.llm_providers, "selected_model", "GPT")
+
     mock_wrap.side_effect = lambda text, width: f"WRAPPED({text})"
 
     commands.generate_message(["--dummy"])
