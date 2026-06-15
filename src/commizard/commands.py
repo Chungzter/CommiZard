@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from difflib import get_close_matches
 from typing import TYPE_CHECKING
 
 from . import config, git_utils, llm_providers, output
@@ -98,17 +99,28 @@ def start_model(opts: list[str]) -> None:
 
     if llm_providers.available_models is None:
         llm_providers.init_model_list()
+        if llm_providers.available_models is None:
+            output.print_error("No available models found.")
+            return
 
-    # TODO: see issue #42
-    model_name = opts[0]
+    model_name = opts[0] if opts[0] in llm_providers.available_models else None
 
-    if (
-        llm_providers.available_models
-        and model_name not in llm_providers.available_models
-    ):
-        output.print_error(f"{model_name} Not found.")
-        return
-    print("Loading model...")
+    if model_name is None:
+        matches: list = get_close_matches(
+            opts[0], llm_providers.available_models, cutoff=0.4
+        )
+        if len(matches) != 1:
+            if matches == []:
+                output.print_error(f"Could not find a match for {opts[0]}.")
+            else:
+                err_str = f"Too many matches for {opts[0]}:\n"
+                for match in matches:
+                    err_str += f"\t{match}\n"
+                output.print_error(err_str)
+            return
+        model_name = matches[0]
+
+    print(f"Loading {model_name}")
     ret_stat, msg = llm_providers.select_model(model_name)
     if ret_stat == 0:
         output.print_success(msg)
@@ -215,8 +227,6 @@ def parser(user_input: str) -> int:
         cmd_func(commands[1:])
         return 0
     else:
-        from difflib import get_close_matches
-
         err_str = (
             f"Command '{commands[0]}' not found. Use 'help' for more info\n"
         )

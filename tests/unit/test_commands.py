@@ -134,6 +134,10 @@ def test_copy_command(
         (["gpt-1", "gpt-2"], [], False, True, False, (0, "test")),
         # error from select_model
         (["gpt-1", "gpt-2"], ["gpt-2"], False, True, True, (1, "test")),
+        # no matches found
+        (["gpt-1", "gpt-2"], ["claude"], False, True, False, (1, "test")),
+        # too many options for autocomplete
+        (["gpt-1", "gpt-2"], ["gpt"], False, True, False, (1, "test")),
     ],
 )
 @patch("builtins.print")

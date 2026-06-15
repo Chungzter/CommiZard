@@ -8,6 +8,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Partial model name support: `start` command now works with shortened names
+  like `start mistral` or `start llama`, automatically picking best match or
+  shows choices when ambiguous
+
 ### Changed
 
 - Improved startup time by lazy importing modules
